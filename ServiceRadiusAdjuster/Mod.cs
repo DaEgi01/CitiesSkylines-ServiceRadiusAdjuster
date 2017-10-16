@@ -6,7 +6,9 @@ using ServiceRadiusAdjuster.Model;
 using ServiceRadiusAdjuster.Service;
 using ServiceRadiusAdjuster.View;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using YamlDotNet.Serialization;
 
 namespace ServiceRadiusAdjuster
@@ -39,7 +41,7 @@ namespace ServiceRadiusAdjuster
         public string SystemName => "ServiceRadiusAdjuster";
         //TODO localization
         public string Description => "Adjusts the effect radius of service buildings in your city.";
-        public string Version => "1.4.0";
+        public string Version => "1.4.1";
 
         public void OnEnabled()
         {
