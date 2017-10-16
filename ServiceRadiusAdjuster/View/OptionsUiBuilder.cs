@@ -36,6 +36,7 @@ namespace ServiceRadiusAdjuster.View
         private readonly string _default = "Default";
         private readonly string defaultAll = "Default all";
         private readonly string startGameAtLeastOnce = "Configuration can only be changed in game.";
+        private readonly string hotReloadUnsupported = "Hot reload of the mod is not supported. Please reload the game instead.";
 
         private UIButton applyAllButton;
         private UIButton undoAllButton;
@@ -89,6 +90,23 @@ namespace ServiceRadiusAdjuster.View
 
             var startGameAtLeastOnceLabel = mainPanel.AddUIComponent<UILabel>();
             startGameAtLeastOnceLabel.text = startGameAtLeastOnce;
+        }
+
+        public void BuildHotReloadUnsupportedUi(UIHelperBase helper, string modName, string modVersion)
+        {
+            if (helper == null) throw new ArgumentNullException(nameof(helper));
+            if (modName == null) throw new ArgumentNullException(nameof(modName));
+            if (modVersion == null) throw new ArgumentNullException(nameof(modVersion));
+
+            var modLongTitle = GenerateLongTitle(modName, modVersion);
+            var mainGroup = helper.AddGroup(modLongTitle) as UIHelper;
+
+            var mainPanel = mainGroup.self as UIPanel;
+            mainPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+            mainPanel.autoLayoutPadding = new RectOffset(0, 5, 0, 5);
+
+            var hotReloadUnsupportedLabel = mainPanel.AddUIComponent<UILabel>();
+            hotReloadUnsupportedLabel.text = hotReloadUnsupported;
         }
 
         private void AddGlobalButtons(UIHelperBase helper)

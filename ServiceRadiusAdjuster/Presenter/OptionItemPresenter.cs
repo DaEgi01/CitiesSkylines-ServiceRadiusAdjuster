@@ -100,19 +100,16 @@ namespace ServiceRadiusAdjuster.Presenter
                 model.Radius = int.Parse(view.Radius);
             }
 
-            if (gameEngineService.IsInGame())
+            var result = gameEngineService.ApplyToGame(model);
+            if (result.IsSuccess)
             {
-                var result = gameEngineService.ApplyToGame(model);
-                if (result.IsSuccess)
-                {
-                    view.AccumulationErrorMessage = string.Empty;
-                    view.RadiusErrorMessage = string.Empty;
-                }
-                else
-                {
-                    view.AccumulationErrorMessage = cantApplyValue + " " + result.Error;
-                    view.RadiusErrorMessage = cantApplyValue + " " + result.Error;
-                }
+                view.AccumulationErrorMessage = string.Empty;
+                view.RadiusErrorMessage = string.Empty;
+            }
+            else
+            {
+                view.AccumulationErrorMessage = cantApplyValue + " " + result.Error;
+                view.RadiusErrorMessage = cantApplyValue + " " + result.Error;
             }
 
             this.UpdateViewFromModel();

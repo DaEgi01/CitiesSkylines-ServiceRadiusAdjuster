@@ -5,7 +5,6 @@ namespace ServiceRadiusAdjuster.Service
 {
     public interface IGameEngineService
     {
-        bool IsInGame();
         Result ApplyToGame(Profile profile);
         Result ApplyToGame(OptionItem optionItem);
         OptionItem LoadFromGame(ServiceType serviceType, string systemName);

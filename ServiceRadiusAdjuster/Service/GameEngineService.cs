@@ -10,18 +10,8 @@ namespace ServiceRadiusAdjuster.Service
         {
         }
 
-        public bool IsInGame()
-        {
-            return PrefabCollection<BuildingInfo>.LoadedCount() > 0;
-        }
-
         public Result<List<ViewGroup>> GetViewGroupsFromGame()
         {
-            if (!this.IsInGame())
-            {
-                return Result.Fail<List<ViewGroup>>($"{nameof(GetViewGroupsFromGame)} can't be executed, since we are not in game.");
-            }
-
             var result = new List<ViewGroup>();
 
             var healthCareOptionItems = new List<OptionItem>();
@@ -437,7 +427,6 @@ namespace ServiceRadiusAdjuster.Service
                     break;
                 default:
                     return Result.Fail("Building AI was not recognized.");
-                    break;
             }
 
             return Result.Ok();

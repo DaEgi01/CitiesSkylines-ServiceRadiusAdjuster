@@ -19,8 +19,7 @@ namespace ServiceRadiusAdjuster
         private DirectoryInfo configFilesDirectory;
         private IConfigurationService configurationService;
 
-        //initialization during 'OnCreated'
-        private ILoading loading;
+        private bool onCreatedInvoked = false;
 
         //initalization during 'OnSettingsUI'
         private UIHelperBase helper;
@@ -39,7 +38,7 @@ namespace ServiceRadiusAdjuster
         public string SystemName => "ServiceRadiusAdjuster";
         //TODO localization
         public string Description => "Adjusts the effect radius of service buildings in your city.";
-        public string Version => "1.4.1";
+        public string Version => "1.4.2";
 
         public void OnEnabled()
         {
@@ -64,24 +63,21 @@ namespace ServiceRadiusAdjuster
 
         public void OnCreated(ILoading loading)
         {
-            this.loading = loading;
+            this.onCreatedInvoked = true;
         }
 
         public void OnReleased()
         {
-            this.loading = null;
         }
 
         public void OnSettingsUI(UIHelperBase helper)
         {
             this.helper = helper; //in the regular case, the mod will be initialized during 'OnLevelLoaded' but a reference to the uihelper is needed.
 
-            if (this.gameEngineService.IsInGame() && this.loading.currentMode == AppMode.Game)
+            if (this.onCreatedInvoked)
             {
-                if (this.loading.loadingComplete) //this is a special case where the mod is reloaded while the game is running (hot loading)
-                {
-                    this.InitializeMod(helper, this.Name, this.Version, this.configurationService, this.gameEngineService);
-                }
+                this.optionsUiBuilder.BuildHotReloadUnsupportedUi(helper, this.Name, this.Version);
+                this.onCreatedInvoked = false;
             }
             else
             {
@@ -91,16 +87,23 @@ namespace ServiceRadiusAdjuster
 
         public void OnLevelLoaded(LoadMode mode)
         {
-            if (!(mode == LoadMode.LoadGame || mode == LoadMode.LoadScenario || mode == LoadMode.NewGame || mode == LoadMode.NewGameFromScenario))
+            if (!(mode == LoadMode.LoadGame || mode == LoadMode.NewGame || mode == LoadMode.NewGameFromScenario) || this.onCreatedInvoked)
             {
+                this.onCreatedInvoked = false;
                 return;
             }
 
             this.InitializeMod(this.helper, this.Name, this.Version, this.configurationService, this.gameEngineService);
         }
 
+        public void OnLevelUnloading()
+        {
+        }
+
         private void InitializeMod(UIHelperBase helper, string modName, string modVersion, IConfigurationService configurationService, IGameEngineService gameEngineService)
         {
+            this.ClearExistingUi();
+
             var getViewGroupsResult = gameEngineService.GetViewGroupsFromGame();
             if (getViewGroupsResult.IsFailure)
             {
@@ -184,24 +187,31 @@ namespace ServiceRadiusAdjuster
 
             if (combinedOldPersistetValues.Count > 0)
             {
-                this.ShowMigrationWarningIfInGame();
+                this.ShowMigrationWarning();
             }
 
             this.optionsUiBuilder.BuildProfileUi(helper, modName, modVersion, currentProfile, configurationService, gameEngineService);
             this.optionsUiBuilder.GlobalOptionsPresenter.ApplyAll();
         }
 
-        public void OnLevelUnloading()
+        private void ShowMigrationWarning()
         {
-            this.helper = null;
-        }
-
-        private void ShowMigrationWarningIfInGame()
-        {
-            if (this.gameEngineService.IsInGame())
+            if (this.onCreatedInvoked)
             {
                 var infoPanel = UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel");
                 infoPanel.SetMessage(this.Name, migrationWarning, false);
+            }
+        }
+
+        private void ClearExistingUi()
+        {
+            var uiHelper = this.helper as UIHelper;
+            var component = uiHelper.self as UIComponent;
+            for (int i = 0; i < component.components.Count; i++)
+            {
+                var childComp = component.components[i];
+                component.RemoveUIComponent(childComp);
+                UnityEngine.Object.Destroy(childComp.gameObject);
             }
         }
     }
