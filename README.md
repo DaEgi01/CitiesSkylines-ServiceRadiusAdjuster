@@ -1,4 +1,4 @@
-#Service Radius Adjuster
+# Service Radius Adjuster
 Enables you to adjust the effect strength and radius of service buildings in your cities.
 
 Ever wondered why your industry does not level up to level 3 before you put five Cargo Train Terminals in close proximity around it?
