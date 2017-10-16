@@ -25,7 +25,7 @@ namespace ServiceRadiusAdjuster.Configuration.v3
         {
             if (!File.Exists(configFile.FullName)) //don't use configFile.Exists here, since that will bug if the file is created on the first run.
             {
-                return Result.Ok<Maybe<Profile>>(Maybe<Profile>.None);
+                return Result.Ok(Maybe<Profile>.None);
             }
 
             using (var streamReader = new StreamReader(configFile.FullName))

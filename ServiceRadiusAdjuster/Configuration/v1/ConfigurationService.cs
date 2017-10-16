@@ -20,7 +20,7 @@ namespace ServiceRadiusAdjuster.Configuration.v1
 
             if (!configFile.Exists)
             {
-                return Result.Ok<Dictionary<string, float>>(result);
+                return Result.Ok(result);
             }
 
             using (var streamReader = new StreamReader(configFile.FullName))
@@ -35,11 +35,11 @@ namespace ServiceRadiusAdjuster.Configuration.v1
                 }
                 catch (Exception e)
                 {
-                    return Result.Fail<Dictionary<string, float>>($"Could not deserialize '{configFile.FullName}'");
+                    return Result.Fail<Dictionary<string, float>>($"Could not deserialize '{configFile.FullName}'. {e.ToString()}");
                 }
             }
 
-            return Result.Ok<Dictionary<string, float>>(result);
+            return Result.Ok(result);
         }
     }
 }
