@@ -74,17 +74,13 @@ namespace ServiceRadiusAdjuster
 
         public void OnSettingsUI(UIHelperBase helper)
         {
+            this.helper = helper; //in the regular case, the mod will be initialized during 'OnLevelLoaded' but a reference to the uihelper is needed.
+
             if (this.gameEngineService.IsInGame() && this.loading.currentMode == AppMode.Game)
             {
-                this.helper = helper;
-
                 if (this.loading.loadingComplete) //this is a special case where the mod is reloaded while the game is running (hot loading)
                 {
                     this.InitializeMod(helper, this.Name, this.Version, this.configurationService, this.gameEngineService);
-                }
-                else //this is the regular case, where OnSettingsUI is called before the game is fully loaded.
-                {
-                    this.helper = helper; //Mod will be initialized during 'OnLevelLoaded' but a reference to the uihelper is needed.
                 }
             }
             else

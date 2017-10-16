@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -17,6 +16,6 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: Guid("73d44027-0cf6-48d3-aaf7-7573a20a3a54")]
 
-[assembly: AssemblyVersion("1.4.*")]
+[assembly: AssemblyVersion("1.4.1")]
 //[assembly: AssemblyFileVersion("1.0.0.0")]
 //[assembly: AssemblyInformationalVersion("1.4.0")]
