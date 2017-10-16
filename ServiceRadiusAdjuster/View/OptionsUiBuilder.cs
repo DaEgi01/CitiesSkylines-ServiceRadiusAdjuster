@@ -1,11 +1,9 @@
 ﻿using ColossalFramework.UI;
 using ICities;
 using ServiceRadiusAdjuster.Configuration;
-using ServiceRadiusAdjuster.Configuration.v3;
 using ServiceRadiusAdjuster.Model;
 using ServiceRadiusAdjuster.Presenter;
 using ServiceRadiusAdjuster.Service;
-using ServiceRadiusAdjuster.View;
 using System;
 using System.Collections.Generic;
 using System.Linq;

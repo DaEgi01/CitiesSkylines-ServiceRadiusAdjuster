@@ -1,5 +1,4 @@
-﻿using ICities;
-using ServiceRadiusAdjuster.Model;
+﻿using ServiceRadiusAdjuster.Model;
 using System;
 using System.Collections.Generic;
 
@@ -159,7 +158,7 @@ namespace ServiceRadiusAdjuster.Service
                 new ViewGroup("Monuments", 2300, monumentOptionItems)
             };
 
-            return Result.Ok<List<ViewGroup>>(viewGroups);
+            return Result.Ok(viewGroups);
 
             List<OptionItem> GetAppropriateParkList(string category)
             {

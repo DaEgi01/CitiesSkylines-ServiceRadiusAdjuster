@@ -1,8 +1,7 @@
-﻿using System;
-using ServiceRadiusAdjuster.Model;
+﻿using ServiceRadiusAdjuster.Model;
 using ServiceRadiusAdjuster.Service;
 using ServiceRadiusAdjuster.View;
-using ServiceRadiusAdjuster.Configuration.v3;
+using System;
 
 namespace ServiceRadiusAdjuster.Presenter
 {

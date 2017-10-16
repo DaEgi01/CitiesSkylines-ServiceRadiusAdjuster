@@ -3,15 +3,10 @@ using ColossalFramework.UI;
 using ICities;
 using ServiceRadiusAdjuster.Configuration;
 using ServiceRadiusAdjuster.Model;
-using ServiceRadiusAdjuster.Presenter;
 using ServiceRadiusAdjuster.Service;
 using ServiceRadiusAdjuster.View;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using UnityEngine;
 using YamlDotNet.Serialization;
 
 namespace ServiceRadiusAdjuster
