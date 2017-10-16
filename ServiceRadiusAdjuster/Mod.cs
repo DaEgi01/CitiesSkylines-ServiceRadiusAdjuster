@@ -38,7 +38,7 @@ namespace ServiceRadiusAdjuster
         public string SystemName => "ServiceRadiusAdjuster";
         //TODO localization
         public string Description => "Adjusts the effect radius of service buildings in your city.";
-        public string Version => "1.4.2";
+        public string Version => "1.4.3";
 
         public void OnEnabled()
         {
@@ -206,12 +206,11 @@ namespace ServiceRadiusAdjuster
         private void ClearExistingUi()
         {
             var uiHelper = this.helper as UIHelper;
-            var component = uiHelper.self as UIComponent;
-            for (int i = 0; i < component.components.Count; i++)
+            var mainPanel = uiHelper.self as UIComponent;
+            for (int i = 0; i < mainPanel.components.Count; i++)
             {
-                var childComp = component.components[i];
-                component.RemoveUIComponent(childComp);
-                UnityEngine.Object.Destroy(childComp.gameObject);
+                var component = mainPanel.components[i];
+                UnityEngine.Object.Destroy(component);
             }
         }
     }
