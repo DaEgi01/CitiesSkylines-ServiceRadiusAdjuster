@@ -38,7 +38,7 @@ namespace ServiceRadiusAdjuster
         public string SystemName => "ServiceRadiusAdjuster";
         //TODO localization
         public string Description => "Adjusts the effect radius of service buildings in your city.";
-        public string Version => "1.4.3";
+        public string Version => "1.4.4";
 
         public void OnEnabled()
         {

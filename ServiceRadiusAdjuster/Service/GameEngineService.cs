@@ -42,7 +42,17 @@ namespace ServiceRadiusAdjuster.Service
             for (uint i = 0; i < loadedBuildingInfoCount; i++)
             {
                 var bi = PrefabCollection<BuildingInfo>.GetLoaded(i);
+                if (bi == null)
+                {
+                    continue;
+                }
+
                 var ai = bi.GetAI();
+                if (ai == null)
+                {
+                    continue;
+                }
+
                 switch (ai)
                 {
                     case MedicalCenterAI medicalCenterAi: //take care, MedicalCenterAI should come before HospitalAI since it is also a HospitalAI
@@ -101,6 +111,10 @@ namespace ServiceRadiusAdjuster.Service
             for (uint i = 0; i < loadedTransportInfoCount; i++)
             {
                 var ti = PrefabCollection<TransportInfo>.GetLoaded(i);
+                if (ti == null)
+                {
+                    continue;
+                }
 
                 if (ti.category == Category.PublicTransportBus.Name
                     || ti.category == Category.PublicTransportCableCar.Name
