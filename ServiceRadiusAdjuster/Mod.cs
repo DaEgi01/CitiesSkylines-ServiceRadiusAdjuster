@@ -38,7 +38,7 @@ namespace ServiceRadiusAdjuster
         public string SystemName => "ServiceRadiusAdjuster";
         //TODO localization
         public string Description => "Adjusts the effect radius of service buildings in your city.";
-        public string Version => "1.4.4";
+        public string Version => "1.4.5";
 
         public void OnEnabled()
         {
@@ -102,7 +102,7 @@ namespace ServiceRadiusAdjuster
 
         private void InitializeMod(UIHelperBase helper, string modName, string modVersion, IConfigurationService configurationService, IGameEngineService gameEngineService)
         {
-            this.ClearExistingUi();
+            this.optionsUiBuilder.ClearExistingUi(helper);
 
             var getViewGroupsResult = gameEngineService.GetViewGroupsFromGame();
             if (getViewGroupsResult.IsFailure)
@@ -185,33 +185,13 @@ namespace ServiceRadiusAdjuster
                 throw new Exception(backupConfigFileV2Result.Error);
             }
 
-            if (combinedOldPersistetValues.Count > 0)
+            if (combinedOldPersistetValues.Count > 0 && this.onCreatedInvoked)
             {
-                this.ShowMigrationWarning();
+                this.optionsUiBuilder.ShowExceptionPanel(this.Name, this.migrationWarning, false);
             }
 
             this.optionsUiBuilder.BuildProfileUi(helper, modName, modVersion, currentProfile, configurationService, gameEngineService);
             this.optionsUiBuilder.GlobalOptionsPresenter.ApplyAll();
-        }
-
-        private void ShowMigrationWarning()
-        {
-            if (this.onCreatedInvoked)
-            {
-                var infoPanel = UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel");
-                infoPanel.SetMessage(this.Name, migrationWarning, false);
-            }
-        }
-
-        private void ClearExistingUi()
-        {
-            var uiHelper = this.helper as UIHelper;
-            var mainPanel = uiHelper.self as UIComponent;
-            for (int i = 0; i < mainPanel.components.Count; i++)
-            {
-                var component = mainPanel.components[i];
-                UnityEngine.Object.Destroy(component);
-            }
         }
     }
 }

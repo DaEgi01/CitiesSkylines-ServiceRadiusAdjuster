@@ -109,6 +109,24 @@ namespace ServiceRadiusAdjuster.View
             hotReloadUnsupportedLabel.text = hotReloadUnsupported;
         }
 
+        public void ClearExistingUi(UIHelperBase helper)
+        {
+            var uiHelper = helper as UIHelper;
+            var mainPanel = uiHelper.self as UIScrollablePanel;
+
+            for (int i = 0; i < mainPanel.components.Count; i++)
+            {
+                var component = mainPanel.components[i];
+                UnityEngine.Object.Destroy(component.gameObject);
+            }
+        }
+
+        public void ShowExceptionPanel(string title, string message, bool isError)
+        {
+            var infoPanel = UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel");
+            infoPanel.SetMessage(title, message, isError);
+        }
+
         private void AddGlobalButtons(UIHelperBase helper)
         {
             this.applyAllButton = helper.AddButton(applyAll, new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
