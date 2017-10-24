@@ -1,11 +1,8 @@
-﻿using System;
+﻿using ServiceRadiusAdjuster.Model;
+using System;
 using System.Collections.Generic;
-using ServiceRadiusAdjuster.Model;
-using System.Xml.Serialization;
 using System.IO;
-using System.Text.RegularExpressions;
-using System.Linq;
-using ServiceRadiusAdjuster.Service;
+using System.Xml.Serialization;
 
 namespace ServiceRadiusAdjuster.Configuration.v3
 {
