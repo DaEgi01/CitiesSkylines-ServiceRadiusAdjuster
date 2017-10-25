@@ -97,7 +97,7 @@ namespace ServiceRadiusAdjuster.Presenter
 
             if (model.Radius.HasValue)
             {
-                model.Radius = int.Parse(view.Radius);
+                model.Radius = float.Parse(view.Radius);
             }
 
             var result = gameEngineService.ApplyToGame(model);
