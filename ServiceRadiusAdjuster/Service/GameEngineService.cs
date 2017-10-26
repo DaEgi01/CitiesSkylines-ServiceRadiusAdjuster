@@ -6,6 +6,9 @@ namespace ServiceRadiusAdjuster.Service
 {
     public class GameEngineService : IGameEngineService
     {
+        //TODO localization
+        private readonly string cantApplyValue = "Value can't be applied to the game.";
+
         public GameEngineService()
         {
         }
@@ -345,7 +348,6 @@ namespace ServiceRadiusAdjuster.Service
         public Result ApplyToGame(OptionItem optionItem)
         {
             if (optionItem == null) throw new ArgumentNullException(nameof(optionItem));
-
             if (optionItem.Ignore)
             {
                 return Result.Ok();
@@ -353,15 +355,31 @@ namespace ServiceRadiusAdjuster.Service
 
             if (optionItem.ServiceType == ServiceType.Building)
             {
-                return ApplyToBuilding(optionItem);
+                var applyToBuildingResult = ApplyToBuilding(optionItem);
+                if (applyToBuildingResult.IsSuccess)
+                {
+                    return Result.Ok();
+                }
+                else
+                {
+                    return Result.Fail(cantApplyValue + " " + applyToBuildingResult.Error);
+                }
             }
             else if (optionItem.ServiceType == ServiceType.Transport)
             {
-                return ApplyToTransport(optionItem);
+                var applyToTransportResult = ApplyToTransport(optionItem);
+                if (applyToTransportResult.IsSuccess)
+                {
+                    return Result.Ok();
+                }
+                else
+                {
+                    return Result.Fail(cantApplyValue + " " + applyToTransportResult.Error);
+                }
             }
             else
             {
-                return Result.Fail($"Service type {optionItem.ServiceType} is unknown.");
+                return Result.Fail($"{cantApplyValue} Service type {optionItem.ServiceType} is unknown.");
             }
         }
 

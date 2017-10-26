@@ -7,9 +7,6 @@ namespace ServiceRadiusAdjuster.Presenter
 {
     public class OptionItemPresenter : IOptionItemPresenter
     {
-        //TODO localization
-        private readonly string cantApplyValue = "Value can't be applied to the game.";
-
         private readonly IOptionItemView view;
         private readonly OptionItem model;
         private readonly IGameEngineService gameEngineService;
@@ -90,26 +87,32 @@ namespace ServiceRadiusAdjuster.Presenter
 
         public void Apply()
         {
+            view.AccumulationErrorMessage = string.Empty;
+            view.RadiusErrorMessage = string.Empty;
+
             if (model.Accumulation.HasValue)
             {
-                model.Accumulation = int.Parse(view.Accumulation);
+                var setAccumulationResult = model.SetAccumulation(view.Accumulation);
+                if (setAccumulationResult.IsFailure)
+                {
+                    view.AccumulationErrorMessage = setAccumulationResult.Error;
+                }
             }
 
             if (model.Radius.HasValue)
             {
-                model.Radius = float.Parse(view.Radius);
+                var setRadiusResult = model.SetRadius(view.Radius);
+                if (setRadiusResult.IsFailure)
+                {
+                    view.RadiusErrorMessage = setRadiusResult.Error;
+                }
             }
 
             var result = gameEngineService.ApplyToGame(model);
-            if (result.IsSuccess)
+            if (result.IsFailure)
             {
-                view.AccumulationErrorMessage = string.Empty;
-                view.RadiusErrorMessage = string.Empty;
-            }
-            else
-            {
-                view.AccumulationErrorMessage = cantApplyValue + " " + result.Error;
-                view.RadiusErrorMessage = cantApplyValue + " " + result.Error;
+                view.AccumulationErrorMessage += " " + result.Error;
+                view.RadiusErrorMessage += " " + result.Error;
             }
 
             this.UpdateViewFromModel();

@@ -72,7 +72,7 @@ namespace ServiceRadiusAdjuster.Model
                 {
                     if (oldValues.TryGetValue(optionItem.SystemName, out float radius))
                     {
-                        optionItem.Radius = radius;
+                        optionItem.SetRadius(radius);
                     }
                 }
             }
