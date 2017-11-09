@@ -35,7 +35,7 @@ namespace ServiceRadiusAdjuster.View
         private readonly string undoAll = "Undo all";
         private readonly string _default = "Default";
         private readonly string defaultAll = "Default all";
-        private readonly string startGameAtLeastOnce = "Configuration can only be changed in game.";
+        private readonly string configurationChangeDuringGameplay = "Configuration can only be changed during gameplay.";
         private readonly string hotReloadUnsupported = "Hot reload of the mod is not supported. Please reload the game instead.";
 
         private UIButton applyAllButton;
@@ -88,8 +88,8 @@ namespace ServiceRadiusAdjuster.View
             mainPanel.autoLayoutDirection = LayoutDirection.Horizontal;
             mainPanel.autoLayoutPadding = new RectOffset(0, 5, 0, 5);
 
-            var startGameAtLeastOnceLabel = mainPanel.AddUIComponent<UILabel>();
-            startGameAtLeastOnceLabel.text = startGameAtLeastOnce;
+            var configurationChangeDuringGameplayLabel = mainPanel.AddUIComponent<UILabel>();
+            configurationChangeDuringGameplayLabel.text = configurationChangeDuringGameplay;
         }
 
         public void BuildHotReloadUnsupportedUi(UIHelperBase helper, string modName, string modVersion)
