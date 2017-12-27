@@ -7,7 +7,6 @@ namespace ServiceRadiusAdjuster.Service
     {
         Result ApplyToGame(Profile profile);
         Result ApplyToGame(OptionItem optionItem);
-        OptionItem LoadFromGame(ServiceType serviceType, string systemName);
         Result<List<ViewGroup>> GetViewGroupsFromGame();
     }
 }
