@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace ServiceRadiusAdjuster.Model
 {
@@ -17,12 +16,9 @@ namespace ServiceRadiusAdjuster.Model
 
         public ViewGroup(string name, int order, List<OptionItem> optionItems)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (optionItems == null) throw new ArgumentException(nameof(optionItems));
-
-            this.name = name;
+            this.name = name ?? throw new ArgumentNullException(nameof(name));
             this.order = order;
-            this.optionItems = optionItems;
+            this.optionItems = optionItems ?? throw new ArgumentException(nameof(optionItems));
         }
 
         public string Name => name;
