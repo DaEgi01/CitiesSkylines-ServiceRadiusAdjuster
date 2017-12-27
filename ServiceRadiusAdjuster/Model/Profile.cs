@@ -9,16 +9,9 @@ namespace ServiceRadiusAdjuster.Model
     {
         private readonly List<ViewGroup> viewGroups;
 
-        public Profile()
-        {
-            this.viewGroups = new List<ViewGroup>();
-        }
-
         public Profile(List<ViewGroup> viewGroups)
         {
-            if (viewGroups == null) throw new ArgumentNullException(nameof(viewGroups));
-
-            this.viewGroups = viewGroups;
+            this.viewGroups = viewGroups ?? throw new ArgumentNullException(nameof(viewGroups));
         }
 
         public ReadOnlyCollection<ViewGroup> ViewGroups => viewGroups.AsReadOnly();
@@ -44,17 +37,11 @@ namespace ServiceRadiusAdjuster.Model
 
                     //now find this group in the combinedViewGroups
                     var relevantViewGroup = combinedViewGroups.Where(cvg => cvg.Name == newViewGroup.Name).SingleOrDefault();
-                    if (relevantViewGroup == null) //no such group found
+                    if (relevantViewGroup == null)
                     {
-                        //check if there is a 'misc' group
-                        var miscViewGroup = combinedViewGroups.SingleOrDefault(vg => vg.Name == "Misc");
-                        if (miscViewGroup == null) //not even that, well ...
-                        {
-                            miscViewGroup = new ViewGroup("Misc", int.MaxValue); //... then create it
-                            combinedViewGroups.Add(miscViewGroup);
-                        }
-
-                        relevantViewGroup = miscViewGroup;
+                        //add it if it does not exist yet
+                        relevantViewGroup = new ViewGroup(newViewGroup.Name, newViewGroup.Order);
+                        combinedViewGroups.Add(relevantViewGroup);
                     }
 
                     relevantViewGroup.Add(newOptionItem); //and put the item into that group
