@@ -17,6 +17,9 @@ namespace ServiceRadiusAdjuster.Service
         {
             var result = new List<ViewGroup>();
 
+            var roadConditionOptionItems = new List<OptionItem>();
+            var waterUtilityOptionItems = new List<OptionItem>();
+            var garbageUtilityOptionItems = new List<OptionItem>();
             var healthCareOptionItems = new List<OptionItem>();
             var deathCareOptionItems = new List<OptionItem>();
             var fireDepartmentOptionItems = new List<OptionItem>();
@@ -70,8 +73,29 @@ namespace ServiceRadiusAdjuster.Service
                     case EdenProjectAI edenProjectAi: //take care, EdenProjectAI should come before ParkAI since it is also a ParkAI
                         monumentOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), edenProjectAi.m_entertainmentAccumulation, edenProjectAi.m_entertainmentAccumulation, edenProjectAi.m_entertainmentRadius, edenProjectAi.m_entertainmentRadius));
                         break;
+                    case UltimateRecyclingPlantAI ultimateRecyclingPlantAi:
+                        monumentOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), null, null, ultimateRecyclingPlantAi.m_collectRadius, ultimateRecyclingPlantAi.m_collectRadius));
+                        break;
+                    case MaintenanceDepotAI maintenanceDepotAi:
+                        roadConditionOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), null, null, maintenanceDepotAi.m_maintenanceRadius, maintenanceDepotAi.m_maintenanceRadius));
+                        break;
+                    case SnowDumpAI snowDumpAi:
+                        roadConditionOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), null, null, snowDumpAi.m_collectRadius, snowDumpAi.m_collectRadius));
+                        break;
+                    case WaterFacilityAI waterFacilityAi when waterFacilityAi.m_pumpingVehicles > 0:
+                        waterUtilityOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), null, null, waterFacilityAi.m_vehicleRadius, waterFacilityAi.m_vehicleRadius));
+                        break;
+                    case LandfillSiteAI landfillSiteAi when landfillSiteAi.m_garbageTruckCount > 0:
+                        garbageUtilityOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), null, null, landfillSiteAi.m_collectRadius, landfillSiteAi.m_collectRadius));
+                        break;
+                    case WaterCleanerAI waterCleanerAi:
+                        garbageUtilityOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), waterCleanerAi.m_cleaningRate, waterCleanerAi.m_cleaningRate, waterCleanerAi.m_maxWaterDistance, waterCleanerAi.m_maxWaterDistance));
+                        break;
                     case HospitalAI hospitalAi:
                         healthCareOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), hospitalAi.m_healthCareAccumulation, hospitalAi.m_healthCareAccumulation, hospitalAi.m_healthCareRadius, hospitalAi.m_healthCareRadius));
+                        break;
+                    case SaunaAI saunaAi:
+                        healthCareOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), saunaAi.m_healthCareAccumulation, saunaAi.m_healthCareAccumulation, saunaAi.m_healthCareRadius, saunaAi.m_healthCareRadius));
                         break;
                     case CemeteryAI cemeteryAi:
                         deathCareOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), cemeteryAi.m_deathCareAccumulation, cemeteryAi.m_deathCareAccumulation, cemeteryAi.m_deathCareRadius, cemeteryAi.m_deathCareRadius));
@@ -82,8 +106,14 @@ namespace ServiceRadiusAdjuster.Service
                     case FirewatchTowerAI firewatchTowerAi:
                         fireDepartmentOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), null, null, firewatchTowerAi.m_firewatchRadius, firewatchTowerAi.m_firewatchRadius));
                         break;
+                    case ShelterAI shelterAi:
+                        disasterServicesOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), shelterAi.m_disasterCoverageAccumulation, shelterAi.m_disasterCoverageAccumulation, shelterAi.m_evacuationRange, shelterAi.m_evacuationRange));
+                        break;
                     case RadioMastAI radioMastAi:
                         disasterServicesOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), null, null, radioMastAi.m_transmitterPower, radioMastAi.m_transmitterPower));
+                        break;
+                    case EarthquakeSensorAI earthquakeSensorAi:
+                        disasterServicesOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), null, null, earthquakeSensorAi.m_detectionRange, earthquakeSensorAi.m_detectionRange));
                         break;
                     case PoliceStationAI policeStationAi:
                         policeDepartmentOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), policeStationAi.m_policeDepartmentAccumulation, policeStationAi.m_policeDepartmentAccumulation, policeStationAi.m_policeDepartmentRadius, policeStationAi.m_policeDepartmentRadius));
@@ -140,6 +170,9 @@ namespace ServiceRadiusAdjuster.Service
 
             var viewGroups = new List<ViewGroup>()
             {
+                new ViewGroup("Road Maintenance", 25, roadConditionOptionItems),
+                new ViewGroup("Water Utilities", 50, waterUtilityOptionItems),
+                new ViewGroup("Garbage Utilities", 75, garbageUtilityOptionItems),
                 new ViewGroup("Health Care", 100, healthCareOptionItems),
                 new ViewGroup("Dealth Care", 200, deathCareOptionItems),
                 new ViewGroup("Fire Department", 300, fireDepartmentOptionItems),
@@ -261,9 +294,37 @@ namespace ServiceRadiusAdjuster.Service
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, edenProjectAi.m_entertainmentAccumulation, edenProjectAi.m_entertainmentRadius)
                         );
+                    case UltimateRecyclingPlantAI ultimateRecyclingPlantAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, null, ultimateRecyclingPlantAi.m_collectRadius)
+                        );
+                    case MaintenanceDepotAI maintenanceDepotAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, null, maintenanceDepotAi.m_maintenanceRadius)
+                        );
+                    case SnowDumpAI snowDumpAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, null, snowDumpAi.m_collectRadius)
+                        );
+                    case WaterFacilityAI waterFacilityAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, null, waterFacilityAi.m_vehicleRadius)
+                        );
+                    case LandfillSiteAI landfillSiteAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, null, landfillSiteAi.m_collectRadius)
+                        );
+                    case WaterCleanerAI waterCleanerAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, waterCleanerAi.m_cleaningRate, waterCleanerAi.m_maxWaterDistance)
+                        );
                     case HospitalAI hospitalAi:
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, hospitalAi.m_healthCareAccumulation, hospitalAi.m_healthCareRadius)
+                        );
+                    case SaunaAI saunaAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, saunaAi.m_healthCareAccumulation, saunaAi.m_healthCareRadius)
                         );
                     case CemeteryAI cemeteryAi:
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
@@ -277,9 +338,17 @@ namespace ServiceRadiusAdjuster.Service
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, null, firewatchTowerAi.m_firewatchRadius)
                         );
+                    case ShelterAI shelterAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, shelterAi.m_disasterCoverageAccumulation, shelterAi.m_evacuationRange)
+                        );
                     case RadioMastAI radioMastAi:
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, null, radioMastAi.m_transmitterPower)
+                        );
+                    case EarthquakeSensorAI earthquakeSensorAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, null, earthquakeSensorAi.m_detectionRange)
                         );
                     case PoliceStationAI policeStationAi:
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
@@ -396,66 +465,92 @@ namespace ServiceRadiusAdjuster.Service
             var ai = buildingInfo.GetAI();
             switch (ai)
             {
-                case CargoHarborAI cargoHarborAI:
-                    cargoHarborAI.m_cargoTransportAccumulation = optionItem.Accumulation.Value;
-                    cargoHarborAI.m_cargoTransportRadius = optionItem.Radius.Value;
+                case MedicalCenterAI medicalCenterAi:
+                    medicalCenterAi.m_healthCareAccumulation = optionItem.Accumulation.Value;
+                    medicalCenterAi.m_healthCareRadius = optionItem.Radius.Value;
                     break;
-                case CargoStationAI cargoStationAI:
-                    cargoStationAI.m_cargoTransportAccumulation = optionItem.Accumulation.Value;
-                    cargoStationAI.m_cargoTransportRadius = optionItem.Radius.Value;
+                case SpaceElevatorAI spaceElevatorAi:
+                    spaceElevatorAi.m_publicTransportAccumulation = optionItem.Accumulation.Value;
+                    spaceElevatorAi.m_publicTransportRadius = optionItem.Radius.Value;
                     break;
-                case CemeteryAI cemeteryAI:
-                    cemeteryAI.m_deathCareAccumulation = optionItem.Accumulation.Value;
-                    cemeteryAI.m_deathCareRadius = optionItem.Radius.Value;
+                case HadronColliderAI hadronColliderAi:
+                    hadronColliderAi.m_educationRadius = optionItem.Radius.Value;
                     break;
-                case EdenProjectAI edenProjectAI:
-                    edenProjectAI.m_entertainmentAccumulation = optionItem.Accumulation.Value;
-                    edenProjectAI.m_entertainmentRadius = optionItem.Radius.Value;
+                case EdenProjectAI edenProjectAi:
+                    edenProjectAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
+                    edenProjectAi.m_entertainmentRadius = optionItem.Radius.Value;
                     break;
-                case FireStationAI fireStationAI:
-                    fireStationAI.m_fireDepartmentAccumulation = optionItem.Accumulation.Value;
-                    fireStationAI.m_fireDepartmentRadius = optionItem.Radius.Value;
+                case UltimateRecyclingPlantAI ultimateRecyclingPlantAi:
+                    ultimateRecyclingPlantAi.m_collectRadius = optionItem.Radius.Value;
                     break;
-                case FirewatchTowerAI firewatchTowerAI:
-                    firewatchTowerAI.m_firewatchRadius = optionItem.Radius.Value;
+                case LandfillSiteAI landfillSiteAi:
+                    landfillSiteAi.m_collectRadius = optionItem.Radius.Value;
                     break;
-                case HadronColliderAI hadronColliderAI:
-                    hadronColliderAI.m_educationRadius = optionItem.Radius.Value;
+                case CargoHarborAI cargoHarborAi:
+                    cargoHarborAi.m_cargoTransportAccumulation = optionItem.Accumulation.Value;
+                    cargoHarborAi.m_cargoTransportRadius = optionItem.Radius.Value;
                     break;
-                case MedicalCenterAI medicalCenterAI:
-                    medicalCenterAI.m_healthCareAccumulation = optionItem.Accumulation.Value;
-                    medicalCenterAI.m_healthCareRadius = optionItem.Radius.Value;
+                case CargoStationAI cargoStationAi:
+                    cargoStationAi.m_cargoTransportAccumulation = optionItem.Accumulation.Value;
+                    cargoStationAi.m_cargoTransportRadius = optionItem.Radius.Value;
                     break;
-                case HospitalAI hospitalAI:
-                    hospitalAI.m_healthCareAccumulation = optionItem.Accumulation.Value;
-                    hospitalAI.m_healthCareRadius = optionItem.Radius.Value;
+                case CemeteryAI cemeteryAi:
+                    cemeteryAi.m_deathCareAccumulation = optionItem.Accumulation.Value;
+                    cemeteryAi.m_deathCareRadius = optionItem.Radius.Value;
                     break;
-                case ParkAI parkAI:
-                    parkAI.m_entertainmentAccumulation = optionItem.Accumulation.Value;
-                    parkAI.m_entertainmentRadius = optionItem.Radius.Value;
+                case FireStationAI fireStationAi:
+                    fireStationAi.m_fireDepartmentAccumulation = optionItem.Accumulation.Value;
+                    fireStationAi.m_fireDepartmentRadius = optionItem.Radius.Value;
+                    break;
+                case FirewatchTowerAI firewatchTowerAi:
+                    firewatchTowerAi.m_firewatchRadius = optionItem.Radius.Value;
+                    break;
+                case EarthquakeSensorAI earthquakeSensorAi:
+                    earthquakeSensorAi.m_detectionRange = optionItem.Radius.Value;
+                    break;
+                case HospitalAI hospitalAi:
+                    hospitalAi.m_healthCareAccumulation = optionItem.Accumulation.Value;
+                    hospitalAi.m_healthCareRadius = optionItem.Radius.Value;
+                    break;
+                case ParkAI parkAi:
+                    parkAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
+                    parkAi.m_entertainmentRadius = optionItem.Radius.Value;
+                    break;
+                case MaintenanceDepotAI maintenanceDepotAi:
+                    maintenanceDepotAi.m_maintenanceRadius = optionItem.Radius.Value;
                     break;
                 case MonumentAI monumentAi:
                     monumentAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
                     monumentAi.m_entertainmentRadius = optionItem.Radius.Value;
                     break;
-                case PoliceStationAI policeStationAI:
-                    policeStationAI.m_policeDepartmentAccumulation = optionItem.Accumulation.Value;
-                    policeStationAI.m_policeDepartmentRadius = optionItem.Radius.Value;
+                case PoliceStationAI policeStationAi:
+                    policeStationAi.m_policeDepartmentAccumulation = optionItem.Accumulation.Value;
+                    policeStationAi.m_policeDepartmentRadius = optionItem.Radius.Value;
                     break;
-                case RadioMastAI radioMastAI:
-                    radioMastAI.m_transmitterPower = Convert.ToInt32(optionItem.Radius);
+                case RadioMastAI radioMastAi:
+                    radioMastAi.m_transmitterPower = Convert.ToInt32(optionItem.Radius);
                     break;
-                case SaunaAI saunaAI:
-                    saunaAI.m_healthCareAccumulation = optionItem.Accumulation.Value;
-                    saunaAI.m_healthCareRadius = optionItem.Radius.Value;
+                case SaunaAI saunaAi:
+                    saunaAi.m_healthCareAccumulation = optionItem.Accumulation.Value;
+                    saunaAi.m_healthCareRadius = optionItem.Radius.Value;
                     break;
-                case SchoolAI schoolAI:
-                    schoolAI.m_educationAccumulation = optionItem.Accumulation.Value;
-                    schoolAI.m_educationRadius = optionItem.Radius.Value;
+                case SchoolAI schoolAi:
+                    schoolAi.m_educationAccumulation = optionItem.Accumulation.Value;
+                    schoolAi.m_educationRadius = optionItem.Radius.Value;
                     break;
-                case SpaceElevatorAI spaceElevatorAI:
-                    spaceElevatorAI.m_publicTransportAccumulation = optionItem.Accumulation.Value;
-                    spaceElevatorAI.m_publicTransportRadius = optionItem.Radius.Value;
+                case ShelterAI shelterAi:
+                    shelterAi.m_disasterCoverageAccumulation = optionItem.Accumulation.Value;
+                    shelterAi.m_evacuationRange = optionItem.Radius.Value;
+                    break;
+                case SnowDumpAI snowDumpAi:
+                    snowDumpAi.m_collectRadius = optionItem.Radius.Value;
+                    break;
+                case WaterCleanerAI waterCleanerAi:
+                    waterCleanerAi.m_cleaningRate = optionItem.Accumulation.Value;
+                    waterCleanerAi.m_maxWaterDistance = optionItem.Radius.Value;
+                    break;
+                case WaterFacilityAI waterFacilityAi:
+                    waterFacilityAi.m_vehicleRadius = optionItem.Radius.Value;
                     break;
                 default:
                     return Result.Fail("Building AI was not recognized.");
