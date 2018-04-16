@@ -1,15 +1,18 @@
-﻿namespace ServiceRadiusAdjuster.Model
-{
-    public sealed class Category : TypesafeEnum
-    {
-        private readonly string displayName;
+﻿using System;
+using System.Collections.Generic;
 
-        private Category(string name, string displayName) : base(name)
+namespace ServiceRadiusAdjuster.Model
+{
+    public sealed class Category
+    {
+        private Category(string name, string displayName)
         {
-            this.displayName = displayName;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            DisplayName = displayName ?? throw new ArgumentNullException(nameof(displayName));
         }
 
-        public string DisplayName => displayName;
+        public string Name { get; }
+        public string DisplayName { get; }
 
         public static readonly Category RoadsMaintenance = new Category("RoadsMaintenance", "Road condition");
         public static readonly Category RoadsIntersection = new Category("RoadsIntersection", "Intersections");

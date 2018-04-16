@@ -3,16 +3,16 @@ using System.Linq;
 
 namespace ServiceRadiusAdjuster.Model
 {
-    public sealed class ServiceBuilding : TypesafeEnum
+    public sealed class ServiceBuilding
     {
-        private readonly string displayName;
-
-        private ServiceBuilding(string name, string displayName) : base(name)
+        private ServiceBuilding(string name, string displayName)
         {
-            this.displayName = displayName;
+            this.Name = name ?? throw new System.ArgumentNullException(nameof(name));
+            this.DisplayName = displayName ?? throw new System.ArgumentNullException(nameof(displayName));
         }
 
-        public string DisplayName => displayName;
+        public string Name { get; }
+        public string DisplayName { get; }
 
         public static readonly ServiceBuilding MedicalClinic = new ServiceBuilding("Medical Clinic", "Medical Clinic");
         public static readonly ServiceBuilding MedicalClinicEurope = new ServiceBuilding("medicalclinicEU", "Medical Clinic EU");
@@ -274,10 +274,8 @@ namespace ServiceRadiusAdjuster.Model
             {
                 return new ServiceBuilding(name, name);
             }
-            else
-            {
-                return result;
-            }
+
+            return result;
         }
     }
 }

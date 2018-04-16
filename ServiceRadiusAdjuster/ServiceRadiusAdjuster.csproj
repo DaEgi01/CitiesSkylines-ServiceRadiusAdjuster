@@ -101,7 +101,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Model\ServiceTransport.cs" />
-    <Compile Include="TypesafeEnum.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
