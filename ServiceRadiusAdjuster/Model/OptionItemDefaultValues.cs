@@ -1,6 +1,8 @@
-﻿namespace ServiceRadiusAdjuster.Model
+﻿using System.Collections.Generic;
+
+namespace ServiceRadiusAdjuster.Model
 {
-    public class OptionItemDefaultValues : ValueObject<OptionItemDefaultValues>
+    public class OptionItemDefaultValues : ValueObject
     {
         public OptionItemDefaultValues(string systemName, int? accumulationDefault, float radiusDefault)
         {
@@ -13,22 +15,11 @@
         public int? AccumulationDefault { get; }
         public float RadiusDefault { get; }
 
-        protected override bool EqualsCore(OptionItemDefaultValues other)
+        protected override IEnumerable<object> GetEqualityComponents()
         {
-            return SystemName == other.SystemName
-                && AccumulationDefault == other.AccumulationDefault
-                && RadiusDefault == other.RadiusDefault;
-        }
-
-        protected override int GetHashCodeCore()
-        {
-            unchecked
-            {
-                return 17
-                    + 23 * SystemName.GetHashCode()
-                    + 23 * AccumulationDefault.GetHashCode()
-                    + 23 * RadiusDefault.GetHashCode();
-            }
+            yield return SystemName;
+            yield return AccumulationDefault;
+            yield return RadiusDefault;
         }
     }
 }
