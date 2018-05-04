@@ -13,6 +13,7 @@ namespace ServiceRadiusAdjuster
     public class Mod : IUserMod, ILoadingExtension
     {
         //initialization during 'OnEnabled'
+        private ModFullTitle modFullTitle;
         private IGameEngineService gameEngineService;
         private OptionsUiBuilder optionsUiBuilder;
         private DirectoryInfo configFilesDirectory;
@@ -41,6 +42,7 @@ namespace ServiceRadiusAdjuster
 
         public void OnEnabled()
         {
+            this.modFullTitle = new ModFullTitle(this.Name, this.Version);
             this.gameEngineService = new GameEngineService();
             this.optionsUiBuilder = new OptionsUiBuilder();
             this.configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
@@ -75,12 +77,13 @@ namespace ServiceRadiusAdjuster
 
             if (this.onCreatedInvoked)
             {
-                this.optionsUiBuilder.BuildHotReloadUnsupportedUi(helper, this.Name, this.Version);
+                this.optionsUiBuilder.ClearExistingUi(helper);
+                this.optionsUiBuilder.BuildHotReloadUnsupportedUi(helper, this.modFullTitle);
                 this.onCreatedInvoked = false;
             }
             else
             {
-                this.optionsUiBuilder.BuildNoProfileUi(helper, this.Name, this.Version);
+                this.optionsUiBuilder.BuildNoProfileUi(helper, this.modFullTitle);
             }
         }
 
@@ -92,14 +95,14 @@ namespace ServiceRadiusAdjuster
                 return;
             }
 
-            this.InitializeMod(this.helper, this.Name, this.Version, this.configurationService, this.gameEngineService);
+            this.InitializeMod(this.helper, this.modFullTitle, this.configurationService, this.gameEngineService);
         }
 
         public void OnLevelUnloading()
         {
         }
 
-        private void InitializeMod(UIHelperBase helper, string modName, string modVersion, IConfigurationService configurationService, IGameEngineService gameEngineService)
+        private void InitializeMod(UIHelperBase helper, ModFullTitle modFullTitle, IConfigurationService configurationService, IGameEngineService gameEngineService)
         {
             this.optionsUiBuilder.ClearExistingUi(helper);
 
@@ -189,7 +192,7 @@ namespace ServiceRadiusAdjuster
                 this.optionsUiBuilder.ShowExceptionPanel(this.Name, this.migrationWarning, false);
             }
 
-            this.optionsUiBuilder.BuildProfileUi(helper, modName, modVersion, currentProfile, configurationService, gameEngineService);
+            this.optionsUiBuilder.BuildProfileUi(helper, modFullTitle, currentProfile, configurationService, gameEngineService);
             this.optionsUiBuilder.GlobalOptionsPresenter.ApplyAll();
         }
     }
