@@ -5,7 +5,7 @@ using System;
 
 namespace ServiceRadiusAdjuster.Presenter
 {
-    public class OptionItemPresenter : IOptionItemPresenter
+    public class OptionItemPresenter
     {
         private readonly IOptionItemView view;
         private readonly OptionItem model;
@@ -13,13 +13,9 @@ namespace ServiceRadiusAdjuster.Presenter
 
         public OptionItemPresenter(IOptionItemView view, OptionItem model, IGameEngineService gameEngineService)
         {
-            if (view == null) throw new ArgumentNullException(nameof(view));
-            if (model == null) throw new ArgumentNullException(nameof(model));
-            if (gameEngineService == null) throw new ArgumentNullException(nameof(gameEngineService));
-
-            this.view = view;
-            this.model = model;
-            this.gameEngineService = gameEngineService;
+            this.view = view ?? throw new ArgumentNullException(nameof(view));
+            this.model = model ?? throw new ArgumentNullException(nameof(model));
+            this.gameEngineService = gameEngineService ?? throw new ArgumentNullException(nameof(gameEngineService));
 
             this.view.Accumulation = model.Accumulation.ToString();
             this.view.AccumulationDefault = model.AccumulationDefault.ToString();

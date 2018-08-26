@@ -1,14 +1,13 @@
-using System;
-
 namespace ServiceRadiusAdjuster.Model
 {
-    public class OptionItem : IEquatable<OptionItem>
+    public class OptionItem
     {
         //TODO localization
         private readonly string couldNotParseAccumulationError = "Could not parse the new accumulation value. Please enter a valid number.";
         private readonly string couldNotParseRadiusError = "Could not parse the new radius value. Please enter a valid number.";
 
-        public OptionItem(ServiceType serviceType,
+        public OptionItem(
+            ServiceType serviceType,
             string systemName,
             string displayName,
             int? accumulation,
@@ -72,50 +71,6 @@ namespace ServiceRadiusAdjuster.Model
             else
             {
                 return Result.Fail(couldNotParseRadiusError);
-            }
-        }
-
-        public override bool Equals(object obj)
-        {
-            var oi = obj as OptionItem;
-            return Equals(oi);
-        }
-
-        public bool Equals(OptionItem other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return
-            (
-                ServiceType == other.ServiceType
-                && SystemName == other.SystemName
-                && DisplayName == other.DisplayName
-                && AccumulationDefault == other.AccumulationDefault
-                && RadiusDefault == other.RadiusDefault
-                && Ignore == other.Ignore
-            );
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 23;
-                hash = 17 * ServiceType.GetHashCode();
-                hash = 17 * SystemName.GetHashCode();
-                hash = 17 * DisplayName.GetHashCode();
-                hash = 17 * AccumulationDefault.GetHashCode();
-                hash = 17 * RadiusDefault.GetHashCode();
-                hash = 17 * Ignore.GetHashCode();
-                return hash;
             }
         }
     }

@@ -74,6 +74,15 @@
     <Compile Include="Configuration\v2\ViewGroupDto.cs" />
     <Compile Include="Configuration\v3\ViewGroupDto.cs" />
     <Compile Include="DictionaryExtensions.cs" />
+    <Compile Include="PreviewRenderer.cs" />
+    <Compile Include="GUI\UIFastList.cs" />
+    <Compile Include="GUI\UIMainPanel.cs" />
+    <Compile Include="GUI\UIOptionPanel.cs" />
+    <Compile Include="GUI\UITitleBar.cs" />
+    <Compile Include="GUI\UIUtils.cs" />
+    <Compile Include="GUI\UIServiceBuildingItem.cs" />
+    <Compile Include="GUI\UIWarningModal.cs" />
+    <Compile Include="Model\ModelFullTitle.cs" />
     <Compile Include="View\OptionsUiBuilder.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="MaybeExtensions.cs" />
@@ -81,7 +90,6 @@
     <Compile Include="Model\Category.cs" />
     <Compile Include="Model\Profile.cs" />
     <Compile Include="Model\ServiceType.cs" />
-    <Compile Include="Presenter\IOptionItemPresenter.cs" />
     <Compile Include="Configuration\v3\ConfigurationService.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="ResultExtensions.cs" />

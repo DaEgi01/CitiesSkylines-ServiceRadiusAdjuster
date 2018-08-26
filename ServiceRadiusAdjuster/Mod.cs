@@ -56,6 +56,7 @@ namespace ServiceRadiusAdjuster
 
         public void OnDisabled()
         {
+            this.modFullTitle = null;
             this.gameEngineService = null;
             this.optionsUiBuilder = null;
             this.configFilesDirectory = null;

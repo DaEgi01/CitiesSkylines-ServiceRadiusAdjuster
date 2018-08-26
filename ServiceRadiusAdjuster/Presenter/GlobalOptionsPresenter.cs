@@ -1,12 +1,9 @@
-﻿using ICities;
-using ServiceRadiusAdjuster.Configuration;
-using ServiceRadiusAdjuster.Configuration.v3;
+﻿using ServiceRadiusAdjuster.Configuration;
 using ServiceRadiusAdjuster.Model;
 using ServiceRadiusAdjuster.Service;
 using ServiceRadiusAdjuster.View;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace ServiceRadiusAdjuster.Presenter
@@ -14,24 +11,18 @@ namespace ServiceRadiusAdjuster.Presenter
     public class GlobalOptionsPresenter
     {
         private readonly IGlobalOptionsView optionsView;
-        private readonly List<IOptionItemPresenter> optionItemPresenters;
+        private readonly List<OptionItemPresenter> optionItemPresenters;
         private readonly IConfigurationService configurationService;
         private readonly IGameEngineService gameEngineService;
         private readonly Profile profile;
 
-        public GlobalOptionsPresenter(IGlobalOptionsView view, Profile profile, List<IOptionItemPresenter> optionItemPresenters, IConfigurationService configurationService, IGameEngineService gameEngineService)
+        public GlobalOptionsPresenter(IGlobalOptionsView view, Profile profile, List<OptionItemPresenter> optionItemPresenters, IConfigurationService configurationService, IGameEngineService gameEngineService)
         {
-            if (view == null) throw new ArgumentNullException(nameof(view));
-            if (profile == null) throw new ArgumentNullException(nameof(profile));
-            if (optionItemPresenters == null) throw new ArgumentNullException(nameof(optionItemPresenters));
-            if (configurationService == null) throw new ArgumentNullException(nameof(configurationService));
-            if (gameEngineService == null) throw new ArgumentNullException(nameof(gameEngineService));
-
-            this.optionsView = view;
-            this.profile = profile;
-            this.optionItemPresenters = optionItemPresenters;
-            this.configurationService = configurationService;
-            this.gameEngineService = gameEngineService;
+            this.optionsView = view ?? throw new ArgumentNullException(nameof(view));
+            this.profile = profile ?? throw new ArgumentNullException(nameof(profile));
+            this.optionItemPresenters = optionItemPresenters ?? throw new ArgumentNullException(nameof(optionItemPresenters));
+            this.configurationService = configurationService ?? throw new ArgumentNullException(nameof(configurationService));
+            this.gameEngineService = gameEngineService ?? throw new ArgumentNullException(nameof(gameEngineService));
 
             this.optionsView.ApplyAllButtonClicked += (sender, e) => ApplyAll();
             this.optionsView.UndoAllButtonClicked += (sender, e) => UndoAll();

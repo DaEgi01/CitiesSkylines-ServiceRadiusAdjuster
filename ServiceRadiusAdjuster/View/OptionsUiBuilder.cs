@@ -13,13 +13,15 @@ namespace ServiceRadiusAdjuster.View
 {
     public class OptionsUiBuilder
     {
+        private readonly int borderWidth = 8;
         private readonly float groupPaddingBottom = 0f;
         private readonly float itemHeight = 70f;
-        private readonly float smallSpaceBetween = 8f;
-        private readonly float largeSpaceBetween = 80f;
+        private readonly int smallSpaceBetween = 8;
+        private readonly int largeSpaceBetween = 60;
         private readonly float textElementWidth = 160f;
         private readonly float defaultTextElementWidth = 50f;
         private readonly float optionItemButtonWidth = 10f;
+        private readonly float globalButtonScaleFactor = 0.8f;
 
         private const string empty = " ";
 
@@ -38,34 +40,74 @@ namespace ServiceRadiusAdjuster.View
         private readonly string configurationChangeDuringGameplay = "Configuration can only be changed during gameplay.";
         private readonly string hotReloadUnsupported = "Hot reload of the mod is not supported. Please reload the game instead.";
 
-        private UIButton applyAllButton;
-        private UIButton undoAllButton;
-        private UIButton defaultAllButton;
-        private UIButton defaultAllx2Button;
-        private UIButton defaultAllx4Button;
-
         public GlobalOptionsPresenter GlobalOptionsPresenter { get; private set; }
 
-        public void BuildProfileUi(UIHelperBase helper, string modName, string modVersion, Profile profile, IConfigurationService configurationService, IGameEngineService gameEngineService)
+        public void BuildProfileUi(UIHelperBase helper, ModFullTitle modFullTitle, Profile profile, IConfigurationService configurationService, IGameEngineService gameEngineService)
         {
             if (helper == null) throw new ArgumentNullException(nameof(helper));
-            if (modName == null) throw new ArgumentNullException(nameof(modName));
-            if (modVersion == null) throw new ArgumentNullException(nameof(modVersion));
+            if (modFullTitle == null) throw new ArgumentNullException(nameof(modFullTitle));
             if (profile == null) throw new ArgumentNullException(nameof(profile));
             if (configurationService == null) throw new ArgumentNullException(nameof(configurationService));
             if (gameEngineService == null) throw new ArgumentNullException(nameof(gameEngineService));
 
-            var modLongTitle = GenerateLongTitle(modName, modVersion);
-            var mainGroup = helper.AddGroup(modLongTitle) as UIHelper;
-            var mainPanel = mainGroup.self as UIPanel;
-            mainPanel.autoLayoutDirection = LayoutDirection.Horizontal;
-            mainPanel.autoLayoutPadding = new RectOffset(0, 5, 0, 5);
+            var rootScrollablePanelHelper = helper as UIHelper;
+            var rootScrollablePanel = rootScrollablePanelHelper.self as UIScrollablePanel;
+            var rootPanel = rootScrollablePanel.parent as UIPanel;
+            var rootScrollbar = rootPanel.components.Where(x => x.GetType() == typeof(UIScrollbar)).Single();
 
-            this.AddGlobalButtons(mainGroup);
+            rootPanel.RemoveUIComponent(rootScrollablePanel);
+            rootPanel.RemoveUIComponent(rootScrollbar);
 
-            var globalOptionsViewAdapter = new GlobalOptionsViewAdapter(this.applyAllButton, this.undoAllButton, this.defaultAllButton, this.defaultAllx2Button, this.defaultAllx4Button);
+            var headerRootPanel = rootPanel.AddUIComponent<UIPanel>();
+            headerRootPanel.anchor = UIAnchorStyle.Left | UIAnchorStyle.Top | UIAnchorStyle.Right;
+            headerRootPanel.height = 50f;
 
-            var optionItemPresenters = new List<IOptionItemPresenter>();
+            var contentRootPanel = rootPanel.AddUIComponent<UIPanel>();
+            contentRootPanel.anchor = UIAnchorStyle.All;
+            contentRootPanel.relativePosition = new Vector3(0, headerRootPanel.height);
+
+            contentRootPanel.AttachUIComponent(rootScrollablePanel.gameObject);
+            contentRootPanel.AttachUIComponent(rootScrollbar.gameObject);
+
+            var headerRootPanelHelper = new UIHelper(headerRootPanel);
+
+            var headerContentPanelUIHelper = headerRootPanelHelper.AddGroup(modFullTitle) as UIHelper;
+            var headerContentPanel = headerContentPanelUIHelper.self as UIPanel;
+            headerContentPanel.padding = new RectOffset(0, 0, 0, 0);
+            headerContentPanel.autoLayoutDirection = LayoutDirection.Horizontal;
+            headerContentPanel.autoLayoutPadding = new RectOffset(0, smallSpaceBetween, 0, smallSpaceBetween);
+
+            var headerPanel = headerContentPanel.parent as UIPanel;
+            headerPanel.autoLayout = false;
+            headerPanel.name = "headerPanel";
+            headerPanel.relativePosition = Vector3.zero;
+            headerPanel.height = 117f;
+            headerPanel.padding = new RectOffset(borderWidth, borderWidth, borderWidth, borderWidth);
+
+            var applyAllButton = headerContentPanelUIHelper.AddButton(applyAll, new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
+            applyAllButton.scaleFactor = globalButtonScaleFactor;
+            applyAllButton.color = new Color32(0, 255, 0, 255);
+            applyAllButton.hoveredColor = new Color32(0, 255, 0, 255);
+            applyAllButton.focusedColor = new Color32(0, 255, 0, 255);
+
+            var undoAllButton = headerContentPanelUIHelper.AddButton(undoAll, new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
+            undoAllButton.scaleFactor = globalButtonScaleFactor;
+            undoAllButton.color = new Color32(255, 0, 0, 255);
+            undoAllButton.hoveredColor = new Color32(255, 0, 0, 255);
+            undoAllButton.focusedColor = new Color32(255, 0, 0, 255);
+
+            var defaultAllButton = headerContentPanelUIHelper.AddButton(defaultAll, new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
+            defaultAllButton.scaleFactor = globalButtonScaleFactor;
+
+            var defaultAllx2Button = headerContentPanelUIHelper.AddButton(defaultAll + " x2", new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
+            defaultAllx2Button.scaleFactor = globalButtonScaleFactor;
+
+            var defaultAllx4Button = headerContentPanelUIHelper.AddButton(defaultAll + " x4", new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
+            defaultAllx4Button.scaleFactor = globalButtonScaleFactor;
+
+            var globalOptionsViewAdapter = new GlobalOptionsViewAdapter(applyAllButton, undoAllButton, defaultAllButton, defaultAllx2Button, defaultAllx4Button);
+
+            var optionItemPresenters = new List<OptionItemPresenter>();
             foreach (var viewGroup in profile.ViewGroups.OrderBy(vg => vg.Order))
             {
                 var optionItemPresenterGroup = CreateOptionItemPresenterGroup(helper, viewGroup, gameEngineService);
@@ -75,14 +117,12 @@ namespace ServiceRadiusAdjuster.View
             this.GlobalOptionsPresenter = new GlobalOptionsPresenter(globalOptionsViewAdapter, profile, optionItemPresenters, configurationService, gameEngineService);
         }
 
-        public void BuildNoProfileUi(UIHelperBase helper, string modName, string modVersion)
+        public void BuildNoProfileUi(UIHelperBase helper, ModFullTitle modFullTitle)
         {
             if (helper == null) throw new ArgumentNullException(nameof(helper));
-            if (modName == null) throw new ArgumentNullException(nameof(modName));
-            if (modVersion == null) throw new ArgumentNullException(nameof(modVersion));
+            if (modFullTitle == null) throw new ArgumentNullException(nameof(modFullTitle));
             
-            var modLongTitle = GenerateLongTitle(modName, modVersion);
-            var mainGroup = helper.AddGroup(modLongTitle) as UIHelper;
+            var mainGroup = helper.AddGroup(modFullTitle) as UIHelper;
 
             var mainPanel = mainGroup.self as UIPanel;
             mainPanel.autoLayoutDirection = LayoutDirection.Horizontal;
@@ -92,14 +132,12 @@ namespace ServiceRadiusAdjuster.View
             configurationChangeDuringGameplayLabel.text = configurationChangeDuringGameplay;
         }
 
-        public void BuildHotReloadUnsupportedUi(UIHelperBase helper, string modName, string modVersion)
+        public void BuildHotReloadUnsupportedUi(UIHelperBase helper, ModFullTitle modFullTitle)
         {
             if (helper == null) throw new ArgumentNullException(nameof(helper));
-            if (modName == null) throw new ArgumentNullException(nameof(modName));
-            if (modVersion == null) throw new ArgumentNullException(nameof(modVersion));
+            if (modFullTitle == null) throw new ArgumentNullException(nameof(modFullTitle));
 
-            var modLongTitle = GenerateLongTitle(modName, modVersion);
-            var mainGroup = helper.AddGroup(modLongTitle) as UIHelper;
+            var mainGroup = helper.AddGroup(modFullTitle) as UIHelper;
 
             var mainPanel = mainGroup.self as UIPanel;
             mainPanel.autoLayoutDirection = LayoutDirection.Horizontal;
@@ -114,9 +152,8 @@ namespace ServiceRadiusAdjuster.View
             var uiHelper = helper as UIHelper;
             var mainPanel = uiHelper.self as UIScrollablePanel;
 
-            for (int i = 0; i < mainPanel.components.Count; i++)
+            foreach (var component in mainPanel.components)
             {
-                var component = mainPanel.components[i];
                 UnityEngine.Object.Destroy(component.gameObject);
             }
         }
@@ -127,24 +164,7 @@ namespace ServiceRadiusAdjuster.View
             infoPanel.SetMessage(title, message, isError);
         }
 
-        private void AddGlobalButtons(UIHelperBase helper)
-        {
-            this.applyAllButton = helper.AddButton(applyAll, new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
-            applyAllButton.color = new Color32(0, 255, 0, 255);
-            applyAllButton.hoveredColor = new Color32(0, 255, 0, 255);
-            applyAllButton.focusedColor = new Color32(0, 255, 0, 255);
-
-            this.undoAllButton = helper.AddButton(undoAll, new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
-            undoAllButton.color = new Color32(255, 0, 0, 255);
-            undoAllButton.hoveredColor = new Color32(255, 0, 0, 255);
-            undoAllButton.focusedColor = new Color32(255, 0, 0, 255);
-
-            this.defaultAllButton = helper.AddButton(defaultAll, new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
-            this.defaultAllx2Button = helper.AddButton(defaultAll + " x2", new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
-            this.defaultAllx4Button = helper.AddButton(defaultAll + " x4", new OnButtonClicked(() => { /* do nothing */ })) as UIButton;
-        }
-
-        private List<IOptionItemPresenter> CreateOptionItemPresenterGroup(UIHelperBase helper, ViewGroup viewGroup, IGameEngineService gameEngineService = null)
+        private List<OptionItemPresenter> CreateOptionItemPresenterGroup(UIHelperBase helper, ViewGroup viewGroup, IGameEngineService gameEngineService = null)
         {
             var visibleGroupItems = viewGroup.OptionItems
                 .Where(oi => !oi.Ignore)
@@ -156,7 +176,7 @@ namespace ServiceRadiusAdjuster.View
             panel.autoLayout = false;
             panel.height = itemHeight * visibleGroupItems.Count + groupPaddingBottom;
 
-            var result = new List<IOptionItemPresenter>();
+            var result = new List<OptionItemPresenter>();
             var offset = 0;
             foreach (var optionItem in visibleGroupItems)
             {
@@ -168,7 +188,7 @@ namespace ServiceRadiusAdjuster.View
             return result;
         }
 
-        private IOptionItemPresenter CreateOptionItemPresenter(UIHelperBase groupHelper, float verticalStart, OptionItem optionItem, IGameEngineService gameEngineService)
+        private OptionItemPresenter CreateOptionItemPresenter(UIHelperBase groupHelper, float verticalStart, OptionItem optionItem, IGameEngineService gameEngineService)
         {
             var optionItemViewAdapter = CreateOptionItemViewAdapter(groupHelper, verticalStart, optionItem);
             return new OptionItemPresenter(optionItemViewAdapter, optionItem, gameEngineService);
@@ -257,11 +277,6 @@ namespace ServiceRadiusAdjuster.View
         private Vector3 RightTo(UIComponent component, float spaceBetween, float moveDown = 0f)
         {
             return new Vector3(component.relativePosition.x + component.width + spaceBetween, component.relativePosition.y + moveDown);
-        }
-
-        private string GenerateLongTitle(string modName, string modVersion)
-        {
-            return modName + " v" + modVersion;
         }
     }
 }

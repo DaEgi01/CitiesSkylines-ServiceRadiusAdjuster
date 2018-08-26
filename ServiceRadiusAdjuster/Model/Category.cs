@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace ServiceRadiusAdjuster.Model
 {
@@ -48,5 +48,46 @@ namespace ServiceRadiusAdjuster.Model
         public static readonly Category MonumentCategory4 = new Category("MonumentCategory4", "UniqueBuildings - Level 4");
         public static readonly Category MonumentCategory5 = new Category("MonumentCategory5", "UniqueBuildings - Level 5");
         public static readonly Category MonumentCategory6 = new Category("MonumentCategory6", "UniqueBuildings - Level 6");
+
+        public static ReadOnlyCollection<Category> GetAll()
+        {
+            return Array.AsReadOnly(new []
+            {
+                RoadsMaintenance,
+                RoadsIntersection,
+                Electicity,
+                WaterServices,
+                HeatingServices,
+                Default,
+                HealthCare,
+                FireDeparment,
+                DisasterServices,
+                PoliceDepartment,
+                Education,
+                PublicTransportBus,
+                PublicTransportTram,
+                PublicTransportMetro,
+                PublicTransportTrain,
+                PublicTransportShip,
+                PublicTransportPlane,
+                PublicTransportMonorail,
+                PublicTransportCableCar,
+                PublicTransportTaxi,
+                BeautificationParks,
+                BeautificationPlazas,
+                BeautificationOthers,
+                BeautificationTourismAndLeisure,
+                BeautificationWinterParksAndPlazas,
+                MonumentLandmarks,
+                MonumentTourismAndLeisure,
+                MonumentFootball,
+                MonumentCategory1,
+                MonumentCategory2,
+                MonumentCategory3,
+                MonumentCategory4,
+                MonumentCategory5,
+                MonumentCategory6
+            });
+        }
     }
 }
