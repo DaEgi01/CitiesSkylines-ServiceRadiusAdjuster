@@ -406,7 +406,7 @@ namespace ServiceRadiusAdjuster.Service
                     var commandResult = ApplyToGame(oi);
                     if (commandResult.IsFailure)
                     {
-                        return commandResult;
+                        continue;
                     }
                 }
             }
