@@ -6,7 +6,7 @@ using System;
 
 namespace ServiceRadiusAdjuster.Configuration.v0
 {
-    public class ConfigurationService : OldYamlConfigurationService
+    public class ConfigurationService : OldConfigurationService
     {
         private readonly Deserializer deserializer;
 

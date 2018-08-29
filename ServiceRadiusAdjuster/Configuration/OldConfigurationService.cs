@@ -4,7 +4,7 @@ using System.IO;
 
 namespace ServiceRadiusAdjuster.Configuration
 {
-    public abstract class OldYamlConfigurationService
+    public abstract class OldConfigurationService
     {
         public virtual Result BackupConfigFileIfItExists(FileInfo configFile)
         {

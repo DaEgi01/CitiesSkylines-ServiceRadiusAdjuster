@@ -5,7 +5,7 @@ using YamlDotNet.Serialization;
 
 namespace ServiceRadiusAdjuster.Configuration.v2
 {
-    public class ConfigurationService : OldYamlConfigurationService
+    public class ConfigurationService : OldConfigurationService
     {
         private readonly Deserializer deserializer;
 

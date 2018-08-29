@@ -6,7 +6,6 @@ using ServiceRadiusAdjuster.Service;
 using ServiceRadiusAdjuster.View;
 using System;
 using System.IO;
-using YamlDotNet.Serialization;
 
 namespace ServiceRadiusAdjuster
 {
@@ -50,8 +49,7 @@ namespace ServiceRadiusAdjuster
             this.configurationService = new Configuration.v3.ConfigurationService(configFileV3);
 
             var oldConfigFilesDirectory = new DirectoryInfo(Path.Combine(DataLocation.modsPath, SystemName));
-
-            OldYamlConfigurationService.MoveOldConfigurationFilesToNewFolder(oldConfigFilesDirectory, configFilesDirectory, "*.yaml");
+            OldConfigurationService.MoveOldConfigurationFilesToNewFolder(oldConfigFilesDirectory, configFilesDirectory, "*.yaml");
         }
 
         public void OnDisabled()
@@ -107,88 +105,32 @@ namespace ServiceRadiusAdjuster
         {
             this.optionsUiBuilder.ClearExistingUi(helper);
 
-            var getViewGroupsResult = gameEngineService.GetViewGroupsFromGame();
-            if (getViewGroupsResult.IsFailure)
-            {
-                throw new Exception(getViewGroupsResult.Error);
-            }
-            var viewGroupsInGame = getViewGroupsResult.Value;
+            var viewGroupsInGame = gameEngineService
+                .GetViewGroupsFromGame()
+                .OnFailure(error => throw new Exception(error))
+                .Value;
 
-            var loadProfileResult = this.configurationService.LoadProfile();
-            if (loadProfileResult.IsFailure)
-            {
-                throw new Exception(loadProfileResult.Error);
-            }
+            var currentProfile = this.configurationService
+                .LoadProfile()
+                .OnFailure(error => throw new Exception(error))
+                .Value
+                .Unwrap(
+                    configValues => configValues.Combine(viewGroupsInGame), 
+                    new Profile(viewGroupsInGame)
+                );
 
-            Profile currentProfile;
-            var loadProfileMaybe = loadProfileResult.Value;
-            if (loadProfileMaybe.HasValue)
-            {
-                currentProfile = loadProfileMaybe.Value.Combine(viewGroupsInGame);
-            }
-            else
-            {
-                currentProfile = new Profile(viewGroupsInGame); //generate new profile
-            }
+            var oldConfigMetaService = new OldConfigurationMetaService(this.configFilesDirectory);
+            var oldConfigServicesAndFiles = oldConfigMetaService.GetOldConfigServicesAndFiles();
+            var oldConfigValuesCombined = oldConfigMetaService.GetOldConfigValuesCombined(oldConfigServicesAndFiles);
+            currentProfile.ApplyOldValues(oldConfigValuesCombined);
 
-            //apply old radius values
-            var yamlDeserializer = new Deserializer();
+            var saveProfileResult = configurationService
+                .SaveProfile(currentProfile)
+                .OnFailure(error => throw new Exception(error));
 
-            var configFileV0 = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, ConfigFile.ConfigFile_v0.Name));
-            var configurationServiceV0 = new Configuration.v0.ConfigurationService(yamlDeserializer);
-            var oldPersistedValuesV0Result = configurationServiceV0.GetConfigValues(configFileV0);
-            if (oldPersistedValuesV0Result.IsFailure)
-            {
-                throw new Exception(oldPersistedValuesV0Result.Error);
-            }
+            oldConfigMetaService.BackupOldConfigFiles(oldConfigServicesAndFiles);
 
-            var configFileV1 = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, ConfigFile.ConfigFile_v1.Name));
-            var configurationServiceV1 = new Configuration.v1.ConfigurationService(yamlDeserializer);
-            var oldPersistedValuesV1Result = configurationServiceV1.GetConfigValues(configFileV1);
-            if (oldPersistedValuesV1Result.IsFailure)
-            {
-                throw new Exception(oldPersistedValuesV1Result.Error);
-            }
-
-            var configFileV2 = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, ConfigFile.ConfigFile_v2.Name));
-            var configurationServiceV2 = new Configuration.v2.ConfigurationService(yamlDeserializer);
-            var oldPersistedValuesV2Result = configurationServiceV2.GetConfigValues(configFileV2);
-            if (oldPersistedValuesV2Result.IsFailure)
-            {
-                throw new Exception(oldPersistedValuesV2Result.Error);
-            }
-
-            var combinedOldPersistetValues = oldPersistedValuesV0Result.Value
-                .CombineAndUpdate(oldPersistedValuesV1Result.Value)
-                .CombineAndUpdate(oldPersistedValuesV2Result.Value);
-
-            currentProfile.ApplyOldValues(combinedOldPersistetValues);
-
-            var saveProfileResult = configurationService.SaveProfile(currentProfile);
-            if (saveProfileResult.IsFailure)
-            {
-                throw new Exception(saveProfileResult.Error);
-            }
-
-            var backupConfigFileV0Result = configurationServiceV0.BackupConfigFileIfItExists(configFileV0);
-            if (backupConfigFileV0Result.IsFailure)
-            {
-                throw new Exception(backupConfigFileV0Result.Error);
-            }
-
-            var backupConfigFileV1Result = configurationServiceV1.BackupConfigFileIfItExists(configFileV1);
-            if (backupConfigFileV1Result.IsFailure)
-            {
-                throw new Exception(backupConfigFileV1Result.Error);
-            }
-
-            var backupConfigFileV2Result = configurationServiceV2.BackupConfigFileIfItExists(configFileV2);
-            if (backupConfigFileV2Result.IsFailure)
-            {
-                throw new Exception(backupConfigFileV2Result.Error);
-            }
-
-            if (combinedOldPersistetValues.Count > 0 && this.onCreatedInvoked)
+            if (oldConfigValuesCombined.Count > 0 && this.onCreatedInvoked)
             {
                 this.optionsUiBuilder.ShowExceptionPanel(this.Name, this.migrationWarning, false);
             }

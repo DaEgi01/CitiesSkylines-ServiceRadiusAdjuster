@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using ServiceRadiusAdjuster.Model;
+﻿using ServiceRadiusAdjuster.Model;
 
 namespace ServiceRadiusAdjuster.Configuration
 {

@@ -62,6 +62,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\ConfigFile.cs" />
+    <Compile Include="Configuration\OldConfigurationMetaService.cs" />
+    <Compile Include="Configuration\OldConfigServiceAndFile.cs" />
     <Compile Include="Configuration\OldConfigurationService.cs" />
     <Compile Include="Configuration\v0\ConfigurationService.cs" />
     <Compile Include="Configuration\v1\ConfigurationService.cs" />
