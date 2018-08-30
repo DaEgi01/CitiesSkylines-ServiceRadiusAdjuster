@@ -1,6 +1,7 @@
 ﻿using ServiceRadiusAdjuster.Model;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ServiceRadiusAdjuster.Service
 {
@@ -399,6 +400,8 @@ namespace ServiceRadiusAdjuster.Service
         {
             if (profile == null) throw new ArgumentNullException(nameof(profile));
 
+            var errors = new List<string>();
+
             foreach (var vg in profile.ViewGroups)
             {
                 foreach (var oi in vg.OptionItems)
@@ -406,9 +409,15 @@ namespace ServiceRadiusAdjuster.Service
                     var commandResult = ApplyToGame(oi);
                     if (commandResult.IsFailure)
                     {
+                        errors.Add(commandResult.Error);
                         continue;
                     }
                 }
+            }
+
+            if (errors.Any())
+            {
+                return Result.Fail(errors.Aggregate(string.Empty, (x, y) => x + ";" + y));
             }
 
             return Result.Ok();

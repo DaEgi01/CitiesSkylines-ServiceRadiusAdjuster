@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ColossalFramework.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using YamlDotNet.Serialization;
@@ -14,31 +15,21 @@ namespace ServiceRadiusAdjuster.Configuration
             this.directoryInfo = directoryInfo;
         }
 
-        public IEnumerable<OldConfigServiceAndFile> GetOldConfigServicesAndFiles()
+        public IEnumerable<OldConfigurationFileService> GetOldConfigServices()
         {
             var yamlDeserializer = new Deserializer();
-
-            yield return new OldConfigServiceAndFile(
-                new v0.ConfigurationService(yamlDeserializer),
-                new FileInfo(Path.Combine(directoryInfo.FullName, ConfigFile.ConfigFile_v0.Name))
-            );
-            yield return new OldConfigServiceAndFile(
-                new v1.ConfigurationService(yamlDeserializer),
-                new FileInfo(Path.Combine(directoryInfo.FullName, ConfigFile.ConfigFile_v1.Name))
-            );
-            yield return new OldConfigServiceAndFile(
-                new v2.ConfigurationService(yamlDeserializer),
-                new FileInfo(Path.Combine(directoryInfo.FullName, ConfigFile.ConfigFile_v2.Name))
-            );
+            yield return new v0.ConfigurationService(yamlDeserializer, new FileInfo(Path.Combine(directoryInfo.FullName, "config.yaml")));
+            yield return new v1.ConfigurationService(yamlDeserializer, new FileInfo(Path.Combine(directoryInfo.FullName, "config_v1.yaml")));
+            yield return new v2.ConfigurationService(yamlDeserializer, new FileInfo(Path.Combine(directoryInfo.FullName, "config_v2.yaml")));
         }
 
-        public Dictionary<string, float> GetOldConfigValuesCombined(IEnumerable<OldConfigServiceAndFile> oldConfigServicesAndFiles)
+        public Dictionary<string, float> GetOldConfigValuesCombined(IEnumerable<OldConfigurationFileService> oldConfigServices)
         {
             var result = new Dictionary<string, float>();
 
-            foreach (var oldConfigurationServiceAndFile in oldConfigServicesAndFiles)
+            foreach (var oldConfigService in oldConfigServices)
             {
-                var getConfigValuesResult = oldConfigurationServiceAndFile.ConfigurationService.GetConfigValues(oldConfigurationServiceAndFile.FileInfo);
+                var getConfigValuesResult = oldConfigService.GetConfigValues();
                 if (getConfigValuesResult.IsFailure)
                 {
                     throw new Exception(getConfigValuesResult.Error);
@@ -50,11 +41,11 @@ namespace ServiceRadiusAdjuster.Configuration
             return result;
         }
 
-        public void BackupOldConfigFiles(IEnumerable<OldConfigServiceAndFile> configurationServiceAndFiles)
+        public void BackupOldConfigFiles(IEnumerable<OldConfigurationFileService> oldConfigurationServices)
         {
-            foreach (var configurationServiceAndFile in configurationServiceAndFiles)
+            foreach (var oldConfigurationService in oldConfigurationServices)
             {
-                var backupResult = configurationServiceAndFile.ConfigurationService.BackupConfigFileIfItExists(configurationServiceAndFile.FileInfo);
+                var backupResult = oldConfigurationService.BackupConfigFileIfItExists();
                 if (backupResult.IsFailure)
                 {
                     throw new Exception(backupResult.Error);

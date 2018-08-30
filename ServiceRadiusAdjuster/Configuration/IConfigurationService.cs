@@ -2,9 +2,8 @@
 
 namespace ServiceRadiusAdjuster.Configuration
 {
-    public interface IConfigurationService
+    public interface IConfigurationService : IConfigFileVersion
     {
-        string Version { get; }
         Result<Maybe<Profile>> LoadProfile();
         Result SaveProfile(Profile profile);
     }

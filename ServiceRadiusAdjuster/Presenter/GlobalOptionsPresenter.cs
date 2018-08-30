@@ -51,8 +51,8 @@ namespace ServiceRadiusAdjuster.Presenter
             optionItemPresenters.ForEach(p => p.Apply());
 
             //TODO handle errors
-            configurationService.SaveProfile(profile);
-            gameEngineService.ApplyToGame(profile);
+            var saveResult = configurationService.SaveProfile(profile);
+            var applyResult = gameEngineService.ApplyToGame(profile);
             UpdateViewState();
         }
 

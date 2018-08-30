@@ -5,25 +5,28 @@ using YamlDotNet.Serialization;
 
 namespace ServiceRadiusAdjuster.Configuration.v1
 {
-    public class ConfigurationService : OldConfigurationService
+    public class ConfigurationService : OldConfigurationFileService
     {
         private readonly Deserializer deserializer;
+        private readonly FileInfo configFileInfo;
 
-        public ConfigurationService(Deserializer deserializer)
+        public ConfigurationService(Deserializer deserializer, FileInfo configFileInfo)
+            : base("v1", configFileInfo)
         {
-            this.deserializer = deserializer;
+            this.deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
+            this.configFileInfo = configFileInfo ?? throw new ArgumentNullException(nameof(configFileInfo));
         }
 
-        public override Result<Dictionary<string, float>> GetConfigValues(FileInfo configFile)
+        public override Result<Dictionary<string, float>> GetConfigValues()
         {
             var result = new Dictionary<string, float>();
 
-            if (!configFile.Exists)
+            if (!configFileInfo.Exists)
             {
                 return Result.Ok(result);
             }
 
-            using (var streamReader = new StreamReader(configFile.FullName))
+            using (var streamReader = new StreamReader(configFileInfo.FullName))
             {
                 try
                 {
@@ -35,7 +38,7 @@ namespace ServiceRadiusAdjuster.Configuration.v1
                 }
                 catch (Exception e)
                 {
-                    return Result.Fail<Dictionary<string, float>>($"Could not deserialize '{configFile.FullName}'. {e.ToString()}");
+                    return Result.Fail<Dictionary<string, float>>($"Could not deserialize '{configFileInfo.FullName}'. {e.ToString()}");
                 }
             }
 

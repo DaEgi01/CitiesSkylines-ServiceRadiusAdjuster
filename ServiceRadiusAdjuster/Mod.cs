@@ -45,11 +45,12 @@ namespace ServiceRadiusAdjuster
             this.gameEngineService = new GameEngineService();
             this.optionsUiBuilder = new OptionsUiBuilder();
             this.configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
-            var configFileV3 = new FileInfo(Path.Combine(configFilesDirectory.FullName, ConfigFile.ConfigFile_v3.Name));
-            this.configurationService = new Configuration.v3.ConfigurationService(configFileV3);
 
             var oldConfigFilesDirectory = new DirectoryInfo(Path.Combine(DataLocation.modsPath, SystemName));
-            OldConfigurationService.MoveOldConfigurationFilesToNewFolder(oldConfigFilesDirectory, configFilesDirectory, "*.yaml");
+            OldConfigurationFileService.MoveOldConfigurationFilesToNewFolder(oldConfigFilesDirectory, configFilesDirectory, "*.yaml");
+
+            var currentConfigFile = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, "ServiceRadiusAdjuster_v3.xml"));
+            this.configurationService = new Configuration.v3.ConfigurationService(currentConfigFile);
         }
 
         public void OnDisabled()
@@ -113,14 +114,13 @@ namespace ServiceRadiusAdjuster
             var currentProfile = this.configurationService
                 .LoadProfile()
                 .OnFailure(error => throw new Exception(error))
-                .Value
-                .Unwrap(
-                    configValues => configValues.Combine(viewGroupsInGame), 
-                    new Profile(viewGroupsInGame)
-                );
+                .OnSuccess(value => value
+                    .Unwrap(new Profile(viewGroupsInGame))
+                    .Combine(viewGroupsInGame)
+                ).Value;
 
             var oldConfigMetaService = new OldConfigurationMetaService(this.configFilesDirectory);
-            var oldConfigServicesAndFiles = oldConfigMetaService.GetOldConfigServicesAndFiles();
+            var oldConfigServicesAndFiles = oldConfigMetaService.GetOldConfigServices();
             var oldConfigValuesCombined = oldConfigMetaService.GetOldConfigValuesCombined(oldConfigServicesAndFiles);
             currentProfile.ApplyOldValues(oldConfigValuesCombined);
 

@@ -4,20 +4,30 @@ using System.IO;
 
 namespace ServiceRadiusAdjuster.Configuration
 {
-    public abstract class OldConfigurationService
+    public abstract class OldConfigurationFileService : IConfigFileVersion
     {
-        public virtual Result BackupConfigFileIfItExists(FileInfo configFile)
-        {
-            if (configFile == null) throw new ArgumentNullException(nameof(configFile));
+        public string Version { get; }
+        public FileInfo ConfigFileInfo { get; }
 
-            if (!configFile.Exists)
+        public OldConfigurationFileService(string version, FileInfo configFile)
+        {
+            this.Version = version ?? throw new ArgumentNullException(nameof(version));
+            this.ConfigFileInfo = configFile ?? throw new ArgumentNullException(nameof(configFile));
+        }
+
+        public abstract Result<Dictionary<string, float>> GetConfigValues();
+
+        public virtual Result BackupConfigFileIfItExists()
+        {
+            if (ConfigFileInfo == null) throw new ArgumentNullException(nameof(ConfigFileInfo));
+            if (!ConfigFileInfo.Exists)
             {
                 return Result.Ok();
             }
 
-            var migratedConfigFileName = configFile.Name.Replace("config", "ServiceRadiusAdjuster") + ".bak";
-            var migratedConfigFileFullName = Path.Combine(Path.GetDirectoryName(configFile.FullName), migratedConfigFileName);
-            configFile.MoveTo(migratedConfigFileName);
+            var migratedConfigFileName = $"ServiceRadiusAdjuster_{Version}.bak";
+            var migratedConfigFileFullName = Path.Combine(Path.GetDirectoryName(ConfigFileInfo.FullName), migratedConfigFileName);
+            ConfigFileInfo.MoveTo(migratedConfigFileName);
 
             return Result.Ok();
         }
@@ -39,7 +49,5 @@ namespace ServiceRadiusAdjuster.Configuration
                 return Result.Fail(e.Message);
             }
         }
-
-        public abstract Result<Dictionary<string, float>> GetConfigValues(FileInfo fileInfo);
     }
 }
