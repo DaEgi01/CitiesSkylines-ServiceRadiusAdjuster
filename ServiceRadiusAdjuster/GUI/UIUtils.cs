@@ -13,7 +13,7 @@ namespace ServiceRadiusAdjuster.GUI
 
         public static UIButton CreateButton(UIComponent parent)
         {
-            UIButton button = (UIButton)parent.AddUIComponent<UIButton>();
+            var button = parent.AddUIComponent<UIButton>();
 
             button.atlas = GetAtlas("Ingame");
             button.size = new Vector2(90f, 30f);
@@ -28,13 +28,13 @@ namespace ServiceRadiusAdjuster.GUI
 
         public static UICheckBox CreateCheckBox(UIComponent parent)
         {
-            UICheckBox checkBox = (UICheckBox)parent.AddUIComponent<UICheckBox>();
+            var checkBox = parent.AddUIComponent<UICheckBox>();
 
             checkBox.width = 300f;
             checkBox.height = 20f;
             checkBox.clipChildren = true;
 
-            UISprite sprite = checkBox.AddUIComponent<UISprite>();
+            var sprite = checkBox.AddUIComponent<UISprite>();
             sprite.atlas = GetAtlas("Ingame");
             sprite.spriteName = "ToggleBase";
             sprite.size = new Vector2(16f, 16f);
@@ -56,7 +56,7 @@ namespace ServiceRadiusAdjuster.GUI
 
         public static UITextField CreateTextField(UIComponent parent)
         {
-            UITextField textField = parent.AddUIComponent<UITextField>();
+            var textField = parent.AddUIComponent<UITextField>();
 
             textField.atlas = GetAtlas("Ingame");
             textField.size = new Vector2(90f, 20f);
@@ -78,7 +78,7 @@ namespace ServiceRadiusAdjuster.GUI
 
         public static UIDropDown CreateDropDown(UIComponent parent)
         {
-            UIDropDown dropDown = parent.AddUIComponent<UIDropDown>();
+            var dropDown = parent.AddUIComponent<UIDropDown>();
 
             dropDown.atlas = GetAtlas("Ingame");
             dropDown.size = new Vector2(90f, 30f);
@@ -103,7 +103,7 @@ namespace ServiceRadiusAdjuster.GUI
             dropDown.textFieldPadding = new RectOffset(8, 0, 8, 0);
             dropDown.itemPadding = new RectOffset(14, 0, 8, 0);
 
-            UIButton button = dropDown.AddUIComponent<UIButton>();
+            var button = dropDown.AddUIComponent<UIButton>();
             dropDown.triggerButton = button;
             button.atlas = GetAtlas("Ingame");
             button.text = "";
@@ -130,24 +130,24 @@ namespace ServiceRadiusAdjuster.GUI
             return dropDown;
         }
 
-        private static UIColorField _colorFIeldTemplate;
+        private static UIColorField _colorFieldTemplate;
 
         public static UIColorField CreateColorField(UIComponent parent)
         {
             // Creating a ColorField from scratch is tricky. Cloning an existing one instead.
 
-            if (_colorFIeldTemplate == null)
+            if (_colorFieldTemplate == null)
             {
                 // Get the LineTemplate (PublicTransportDetailPanel)
-                UIComponent template = UITemplateManager.Get("LineTemplate");
+                var template = UITemplateManager.Get("LineTemplate");
                 if (template == null) return null;
 
                 // Extract the ColorField
-                _colorFIeldTemplate = template.Find<UIColorField>("LineColor");
-                if (_colorFIeldTemplate == null) return null;
+                _colorFieldTemplate = template.Find<UIColorField>("LineColor");
+                if (_colorFieldTemplate == null) return null;
             }
 
-            UIColorField colorField = UnityEngine.Object.Instantiate<GameObject>(_colorFIeldTemplate.gameObject).GetComponent<UIColorField>();
+            var colorField = Object.Instantiate(_colorFieldTemplate.gameObject).GetComponent<UIColorField>();
             parent.AttachUIComponent(colorField.gameObject);
 
             colorField.size = new Vector2(40f, 26f);

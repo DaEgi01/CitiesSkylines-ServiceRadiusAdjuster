@@ -7,7 +7,6 @@ namespace ServiceRadiusAdjuster.GUI
 {
     public abstract class UIFastListRow : UIPanel
     {
-        #region Methods to implement
         /// <summary>
         /// Method invoked very often, make sure it is fast
         /// Avoid doing any calculations, the data should be already processed any ready to display.
@@ -26,7 +25,6 @@ namespace ServiceRadiusAdjuster.GUI
         /// </summary>
         /// <param name="isRowOdd">Use this to display a different look for your odd rows</param>
         public abstract void Deselect(bool isRowOdd);
-        #endregion
     }
 
     /// <summary>
@@ -60,7 +58,6 @@ namespace ServiceRadiusAdjuster.GUI
     /// </summary>
     public class UIFastList : UIComponent
     {
-        #region Private members
         private UIPanel m_panel;
         private UIScrollbar m_scrollbar;
         private FastList<UIFastListRow> m_rows;
@@ -79,7 +76,6 @@ namespace ServiceRadiusAdjuster.GUI
         private bool m_updateContent = true;
         private bool m_autoHideScrollbar = false;
         private UIComponent m_lastMouseEnter;
-        #endregion
 
         /// <summary>
         /// Use this to create the UIFastList.
@@ -101,6 +97,7 @@ namespace ServiceRadiusAdjuster.GUI
         {
             return base.AddUIComponent<T>();
         }
+
         private new UIComponent AddUIComponent(Type type)
         {
             return base.AddUIComponent(type);
@@ -118,6 +115,7 @@ namespace ServiceRadiusAdjuster.GUI
                 }
             }
         }
+
         /// <summary>
         /// Change the color of the background
         /// </summary>
@@ -286,8 +284,7 @@ namespace ServiceRadiusAdjuster.GUI
             }
         }
 
-        public bool selectOnMouseEnter
-        { get; set; }
+        public bool selectOnMouseEnter { get; set; }
 
         /// <summary>
         /// The number of pixels moved at each scroll step
@@ -409,7 +406,7 @@ namespace ServiceRadiusAdjuster.GUI
             int max = Mathf.Min(m_rowsData.m_size, m_rows.m_size);
             for (int i = 0; i < max; i++)
             {
-                if (component == (UIComponent)m_rows[i])
+                if (component == m_rows[i])
                 {
                     selectedIndex = i + Mathf.FloorToInt(m_pos);
                     return;
@@ -538,7 +535,6 @@ namespace ServiceRadiusAdjuster.GUI
 
             m_scrollbar.thumbObject = thumbSprite;
 
-            // Rows
             CheckRows();
 
             m_scrollbar.eventValueChanged += (c, t) =>
