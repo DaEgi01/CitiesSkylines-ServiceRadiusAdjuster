@@ -71,7 +71,6 @@ namespace ServiceRadiusAdjusterTests
             };
 
             var expected = new Profile(expectedViewGroups).ViewGroups.SelectMany(vg => vg.OptionItems);
-
             var actual = profile.Combine(newViewGroups).ViewGroups.SelectMany(vg => vg.OptionItems);
 
             var expectedList = expected.ToList();
@@ -82,6 +81,7 @@ namespace ServiceRadiusAdjusterTests
                 var expectedItem = expectedList[i];
                 var actualItem = actualList[i];
 
+                //TODO find out what the issue with the execution timer is
                 Assert.Equal(expectedItem, actualItem);
             }
 
