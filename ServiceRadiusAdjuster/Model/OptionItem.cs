@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
+
 namespace ServiceRadiusAdjuster.Model
 {
-    public class OptionItem
+    public class OptionItem : IEquatable<OptionItem>
     {
         //TODO localization
         private readonly string couldNotParseAccumulationError = "Could not parse the new accumulation value. Please enter a valid number.";
@@ -72,6 +75,57 @@ namespace ServiceRadiusAdjuster.Model
             {
                 return Result.Fail(couldNotParseRadiusError);
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj as OptionItem);
+        }
+
+        public bool Equals(OptionItem other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.ServiceType == other.ServiceType &&
+                this.SystemName == other.SystemName &&
+                this.DisplayName == other.DisplayName &&
+                this.Accumulation == other.Accumulation &&
+                this.AccumulationDefault == other.AccumulationDefault &&
+                this.Radius == other.Radius &&
+                this.RadiusDefault == other.RadiusDefault &&
+                this.Ignore == other.Ignore;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -173902468;
+            hashCode = hashCode * -1521134295 + EqualityComparer<ServiceType>.Default.GetHashCode(this.ServiceType);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.SystemName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.DisplayName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int?>.Default.GetHashCode(this.Accumulation);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int?>.Default.GetHashCode(this.AccumulationDefault);
+            hashCode = hashCode * -1521134295 + EqualityComparer<float?>.Default.GetHashCode(this.Radius);
+            hashCode = hashCode * -1521134295 + EqualityComparer<float?>.Default.GetHashCode(this.RadiusDefault);
+            hashCode = hashCode * -1521134295 + this.Ignore.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(OptionItem item1, OptionItem item2)
+        {
+            return EqualityComparer<OptionItem>.Default.Equals(item1, item2);
+        }
+
+        public static bool operator !=(OptionItem item1, OptionItem item2)
+        {
+            return !(item1 == item2);
         }
     }
 }
