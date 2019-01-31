@@ -37,12 +37,12 @@ namespace ServiceRadiusAdjuster.View
         private readonly string undoAll = "Undo all";
         private readonly string _default = "Default";
         private readonly string defaultAll = "Default all";
-        private readonly string configurationChangeDuringGameplay = "Configuration can only be changed during gameplay.";
-        private readonly string hotReloadUnsupported = "Hot reload of the mod is not supported. Please reload the game instead.";
+        private readonly string noOldProfileNoCurrentProfileOutOfGameMessage = "Please start a game first.\nA new profile will be created from the items in your game.";
+        private readonly string oldProfileNoCurrentProfileOutOfGameMessage = "Please start a game first.\nThe profile format has changed. A new profile will be created from the items in your game and your existing values will be applied to the new profile.";
 
         public GlobalOptionsPresenter GlobalOptionsPresenter { get; private set; }
 
-        public void BuildProfileUi(UIHelperBase helper, ModFullTitle modFullTitle, Profile profile, IConfigurationService configurationService, IGameEngineService gameEngineService)
+        public void BuildInGameUi(UIHelperBase helper, IConfigurationService configurationService, IGameEngineService gameEngineService, ModFullTitle modFullTitle, Profile profile)
         {
             if (helper == null) throw new ArgumentNullException(nameof(helper));
             if (modFullTitle == null) throw new ArgumentNullException(nameof(modFullTitle));
@@ -117,7 +117,23 @@ namespace ServiceRadiusAdjuster.View
             this.GlobalOptionsPresenter = new GlobalOptionsPresenter(globalOptionsViewAdapter, profile, optionItemPresenters, configurationService, gameEngineService);
         }
 
-        public void BuildNoProfileUi(UIHelperBase helper, ModFullTitle modFullTitle)
+        public void BuildGenerateUi(UIHelperBase helper, IConfigurationService configurationService, IGameEngineService gameEngineService, ModFullTitle modFullTitle, Profile profile)
+        {
+            if (helper == null) throw new ArgumentNullException(nameof(helper));
+            if (configurationService == null) throw new ArgumentNullException(nameof(configurationService));
+            if (gameEngineService == null) throw new ArgumentNullException(nameof(gameEngineService));
+            if (modFullTitle == null) throw new ArgumentNullException(nameof(modFullTitle));
+            if (profile == null) throw new ArgumentNullException(nameof(profile));
+
+            var mainGroup = helper.AddGroup(modFullTitle) as UIHelper;
+            mainGroup.AddButton("Generate UI", () => 
+                {
+                    this.BuildInGameUi(helper, configurationService, gameEngineService, modFullTitle, profile);
+                }
+            );
+        }
+
+        public void BuildNoProfileUi(UIHelperBase helper, ModFullTitle modFullTitle, bool oldValuesFound)
         {
             if (helper == null) throw new ArgumentNullException(nameof(helper));
             if (modFullTitle == null) throw new ArgumentNullException(nameof(modFullTitle));
@@ -129,22 +145,7 @@ namespace ServiceRadiusAdjuster.View
             mainPanel.autoLayoutPadding = new RectOffset(0, 5, 0, 5);
 
             var configurationChangeDuringGameplayLabel = mainPanel.AddUIComponent<UILabel>();
-            configurationChangeDuringGameplayLabel.text = configurationChangeDuringGameplay;
-        }
-
-        public void BuildHotReloadUnsupportedUi(UIHelperBase helper, ModFullTitle modFullTitle)
-        {
-            if (helper == null) throw new ArgumentNullException(nameof(helper));
-            if (modFullTitle == null) throw new ArgumentNullException(nameof(modFullTitle));
-
-            var mainGroup = helper.AddGroup(modFullTitle) as UIHelper;
-
-            var mainPanel = mainGroup.self as UIPanel;
-            mainPanel.autoLayoutDirection = LayoutDirection.Horizontal;
-            mainPanel.autoLayoutPadding = new RectOffset(0, 5, 0, 5);
-
-            var hotReloadUnsupportedLabel = mainPanel.AddUIComponent<UILabel>();
-            hotReloadUnsupportedLabel.text = hotReloadUnsupported;
+            configurationChangeDuringGameplayLabel.text = oldValuesFound ? oldProfileNoCurrentProfileOutOfGameMessage : noOldProfileNoCurrentProfileOutOfGameMessage;
         }
 
         public void ClearExistingUi(UIHelperBase helper)
@@ -164,7 +165,7 @@ namespace ServiceRadiusAdjuster.View
             infoPanel.SetMessage(title, message, isError);
         }
 
-        private List<OptionItemPresenter> CreateOptionItemPresenterGroup(UIHelperBase helper, ViewGroup viewGroup, IGameEngineService gameEngineService = null)
+        private List<OptionItemPresenter> CreateOptionItemPresenterGroup(UIHelperBase helper, ViewGroup viewGroup, IGameEngineService gameEngineService)
         {
             var visibleGroupItems = viewGroup.OptionItems
                 .Where(oi => !oi.Ignore)

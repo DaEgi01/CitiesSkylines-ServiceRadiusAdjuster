@@ -56,23 +56,12 @@
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="YamlDotNet, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\YamlDotNet.4.1.0\lib\net35\YamlDotNet.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\IConfigFileVersion.cs" />
-    <Compile Include="Configuration\OldConfigurationMetaService.cs" />
-    <Compile Include="Configuration\OldConfigurationService.cs" />
-    <Compile Include="Configuration\v0\ConfigurationService.cs" />
-    <Compile Include="Configuration\v1\ConfigurationService.cs" />
-    <Compile Include="Configuration\v2\ConfigurationService.cs" />
-    <Compile Include="Configuration\v2\OptionItemDto.cs" />
     <Compile Include="Configuration\IConfigurationService.cs" />
     <Compile Include="Configuration\v3\OptionItemDto.cs" />
-    <Compile Include="Configuration\v0\OptionsDto.cs" />
     <Compile Include="Configuration\v3\ProfileDto.cs" />
-    <Compile Include="Configuration\v2\ViewGroupDto.cs" />
     <Compile Include="Configuration\v3\ViewGroupDto.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="PreviewRenderer.cs" />
@@ -103,16 +92,12 @@
     <Compile Include="Service\GameEngineService.cs" />
     <Compile Include="Service\IGameEngineService.cs" />
     <Compile Include="View\OptionItemViewAdapter.cs" />
-    <Compile Include="Configuration\v1\OptionItemDto.cs" />
     <Compile Include="Model\ServiceBuilding.cs" />
     <Compile Include="Presenter\GlobalOptionsPresenter.cs" />
     <Compile Include="View\GlobalOptionsViewAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Model\ServiceTransport.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

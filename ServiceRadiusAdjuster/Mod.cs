@@ -1,6 +1,7 @@
 ﻿using ColossalFramework.IO;
 using ICities;
 using ServiceRadiusAdjuster.Configuration;
+using ServiceRadiusAdjuster.Configuration.v3;
 using ServiceRadiusAdjuster.Model;
 using ServiceRadiusAdjuster.Service;
 using ServiceRadiusAdjuster.View;
@@ -9,33 +10,17 @@ using System.IO;
 
 namespace ServiceRadiusAdjuster
 {
-    public class Mod : IUserMod, ILoadingExtension
+    public class Mod : LoadingExtensionBase, IUserMod
     {
-        //initialization during 'OnEnabled'
         private ModFullTitle modFullTitle;
         private IGameEngineService gameEngineService;
         private OptionsUiBuilder optionsUiBuilder;
         private DirectoryInfo configFilesDirectory;
         private IConfigurationService configurationService;
 
-        private bool onCreatedInvoked = false;
-
-        //initalization during 'OnSettingsUI'
-        private UIHelperBase helper;
-
-        //TODO localization
-        private string migrationWarning = "A new version of the 'Service Radius Adjuster' is out" +
-            " and with it a new file format to save your values." +
-            " I tried to migrate most of your settings over to the new file format," +
-            " but due to technical reasons, I could not do that for every case." +
-            " \n\nIf you have loaded a map with the european theme, " +
-            " you have to set the values for the non european buildings again and vice versa." +
-            " You will be able to set these values, once you load a map with a non european theme." +
-            " \n\nI beg your pardon for this inconvenience, and wish you a lot of fun with Cities: Skylines.";
-
         public string Name => "Service Radius Adjuster";
         public string SystemName => "ServiceRadiusAdjuster";
-        //TODO localization
+
         public string Description => "Adjusts the effect radius of service buildings in your city.";
         public string Version => "1.5.0";
 
@@ -46,11 +31,8 @@ namespace ServiceRadiusAdjuster
             this.optionsUiBuilder = new OptionsUiBuilder();
             this.configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
 
-            var oldConfigFilesDirectory = new DirectoryInfo(Path.Combine(DataLocation.modsPath, SystemName));
-            OldConfigurationFileService.MoveOldConfigurationFilesToNewFolder(oldConfigFilesDirectory, configFilesDirectory, "*.yaml");
-
             var currentConfigFile = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, "ServiceRadiusAdjuster_v3.xml"));
-            this.configurationService = new Configuration.v3.ConfigurationService(currentConfigFile);
+            this.configurationService = new ConfigurationService(currentConfigFile);
         }
 
         public void OnDisabled()
@@ -62,81 +44,48 @@ namespace ServiceRadiusAdjuster
             this.configurationService = null;
         }
 
-        public void OnCreated(ILoading loading)
-        {
-            this.onCreatedInvoked = true;
-        }
-
-        public void OnReleased()
-        {
-        }
-
         public void OnSettingsUI(UIHelperBase helper)
-        {
-            this.helper = helper; //in the regular case, the mod will be initialized during 'OnLevelLoaded' but a reference to the uihelper is needed.
-
-            if (this.onCreatedInvoked)
-            {
-                this.optionsUiBuilder.ClearExistingUi(helper);
-                this.optionsUiBuilder.BuildHotReloadUnsupportedUi(helper, this.modFullTitle);
-                this.onCreatedInvoked = false;
-            }
-            else
-            {
-                this.optionsUiBuilder.BuildNoProfileUi(helper, this.modFullTitle);
-            }
-        }
-
-        public void OnLevelLoaded(LoadMode mode)
-        {
-            if (!(mode == LoadMode.LoadGame || mode == LoadMode.NewGame || mode == LoadMode.NewGameFromScenario) || this.onCreatedInvoked)
-            {
-                this.onCreatedInvoked = false;
-                return;
-            }
-
-            this.InitializeMod(this.helper, this.modFullTitle, this.configurationService, this.gameEngineService);
-        }
-
-        public void OnLevelUnloading()
-        {
-        }
-
-        private void InitializeMod(UIHelperBase helper, ModFullTitle modFullTitle, IConfigurationService configurationService, IGameEngineService gameEngineService)
         {
             this.optionsUiBuilder.ClearExistingUi(helper);
 
-            var viewGroupsInGame = gameEngineService
-                .GetViewGroupsFromGame()
+            var currentProfileMaybe = this.configurationService
+                .LoadProfile()
                 .OnFailure(error => throw new Exception(error))
                 .Value;
 
-            var currentProfile = this.configurationService
-                .LoadProfile()
-                .OnFailure(error => throw new Exception(error))
-                .OnSuccess(value => value
-                    .Unwrap(new Profile(viewGroupsInGame))
-                    .Combine(viewGroupsInGame)
-                ).Value;
-
-            var oldConfigMetaService = new OldConfigurationMetaService(this.configFilesDirectory);
-            var oldConfigServicesAndFiles = oldConfigMetaService.GetOldConfigServices();
-            var oldConfigValuesCombined = oldConfigMetaService.GetOldConfigValuesCombined(oldConfigServicesAndFiles);
-            currentProfile.ApplyOldValues(oldConfigValuesCombined);
-
-            var saveProfileResult = configurationService
-                .SaveProfile(currentProfile)
-                .OnFailure(error => throw new Exception(error));
-
-            oldConfigMetaService.BackupOldConfigFiles(oldConfigServicesAndFiles);
-
-            if (oldConfigValuesCombined.Count > 0 && this.onCreatedInvoked)
+            if (LoadingManager.exists && LoadingManager.instance.m_loadingComplete)
             {
-                this.optionsUiBuilder.ShowExceptionPanel(this.Name, this.migrationWarning, false);
-            }
+                var viewGroupsInGame = gameEngineService
+                    .GetViewGroupsFromGame()
+                    .OnFailure(error => throw new Exception(error))
+                    .Value;
 
-            this.optionsUiBuilder.BuildProfileUi(helper, modFullTitle, currentProfile, configurationService, gameEngineService);
-            this.optionsUiBuilder.GlobalOptionsPresenter.ApplyAll();
+                var currentProfile = currentProfileMaybe
+                    .Unwrap(new Profile())
+                    .Combine(viewGroupsInGame);
+
+                var saveProfileResult = configurationService
+                    .SaveProfile(currentProfile)
+                    .OnFailure(error => throw new Exception(error));
+
+                this.optionsUiBuilder.BuildGenerateUi(helper, configurationService, gameEngineService, modFullTitle, currentProfile);
+                
+                this.gameEngineService.ApplyToGame(currentProfile);
+            }
+            else //in main menu
+            {
+                if (currentProfileMaybe.HasValue)
+                {
+                    var currentProfile = currentProfileMaybe.Value;
+                    
+                    //TODO: find a way to allow a profile and out of game ui
+                    //this.optionsUiBuilder.BuildOutOfGameUi(helper, this.configurationService, this.modFullTitle, currentProfile);
+                }
+                else
+                {
+                    //this.optionsUiBuilder.BuildNoProfileUi(helper, this.modFullTitle, hasOldProfile);
+                }
+            }
         }
     }
 }
