@@ -9,6 +9,11 @@ namespace ServiceRadiusAdjuster.Model
     {
         private readonly List<ViewGroup> viewGroups;
 
+        public Profile()
+            : this(new List<ViewGroup>())
+        {
+        }
+
         public Profile(List<ViewGroup> viewGroups)
         {
             this.viewGroups = viewGroups ?? throw new ArgumentNullException(nameof(viewGroups));
