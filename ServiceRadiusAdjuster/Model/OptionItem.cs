@@ -114,7 +114,7 @@ namespace ServiceRadiusAdjuster.Model
             hashCode = hashCode * -1521134295 + EqualityComparer<int?>.Default.GetHashCode(this.AccumulationDefault);
             hashCode = hashCode * -1521134295 + EqualityComparer<float?>.Default.GetHashCode(this.Radius);
             hashCode = hashCode * -1521134295 + EqualityComparer<float?>.Default.GetHashCode(this.RadiusDefault);
-            hashCode = hashCode * -1521134295 + this.Ignore.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<bool>.Default.GetHashCode(this.Ignore);
             return hashCode;
         }
 
