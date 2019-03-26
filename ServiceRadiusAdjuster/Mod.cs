@@ -15,9 +15,8 @@ namespace ServiceRadiusAdjuster
         private ModFullTitle modFullTitle;
         private GameEngineService gameEngineService;
         private DirectoryInfo configFilesDirectory;
-        private IConfigurationService configurationService;
-
         private FileInfo currentConfigFile;
+        private IConfigurationService configurationService;
         private Profile currentProfile;
 
         public string Name => "Service Radius Adjuster";
@@ -32,28 +31,18 @@ namespace ServiceRadiusAdjuster
 
             if (LoadingManager.exists && LoadingManager.instance.m_loadingComplete)
             {
-                InitializeMod();
+                UpdateProfileWithNewItemsAndApplyToGame();
             }
         }
 
         public void OnDisabled()
         {
-            if (LoadingManager.exists && LoadingManager.instance.m_loadingComplete)
-            {
-                UninitializeMod();
-            }
-
             UninitializeDependencies();
         }
 
         public override void OnLevelLoaded(LoadMode mode)
         {
-            InitializeMod();
-        }
-
-        public override void OnLevelUnloading()
-        {
-            UninitializeMod();
+            UpdateProfileWithNewItemsAndApplyToGame();
         }
 
         public void OnSettingsUI(UIHelperBase uIHelperBase)
@@ -62,59 +51,51 @@ namespace ServiceRadiusAdjuster
             var mainGroupContentPanel = (mainGroupUiHelper as UIHelper).self as UIPanel;
             mainGroupContentPanel.backgroundSprite = string.Empty;
 
-            if (LoadingManager.exists && LoadingManager.instance.m_loadingComplete)
+            var batchEditGroup = mainGroupUiHelper.AddGroup("Batch edit");
+
+            var accumulationMultiplier = (UITextField)batchEditGroup.AddTextfield("Accumulation multiplier", string.Empty, (s) => { });
+            accumulationMultiplier.numericalOnly = true;
+            accumulationMultiplier.allowFloats = true;
+
+            var radiusMultiplier = (UITextField)batchEditGroup.AddTextfield("Radius multiplier", string.Empty, (s) => { });
+            radiusMultiplier.numericalOnly = true;
+            radiusMultiplier.allowFloats = true;
+
+            batchEditGroup.AddButton("Apply", () =>
             {
-                //TODO move to ui builder
-                var batchEditGroup = mainGroupUiHelper.AddGroup("Batch edit");
+                float? accumulationMultiplierValue = string.IsNullOrEmpty(accumulationMultiplier.text)
+                    ? (float?)null
+                    : float.Parse(accumulationMultiplier.text);
 
-                var accumulationMultiplier = (UITextField)batchEditGroup.AddTextfield("Accumulation multiplier", string.Empty, (s) => { });
-                accumulationMultiplier.numericalOnly = true;
-                accumulationMultiplier.allowFloats = true;
+                float? radiusMultiplierValue = string.IsNullOrEmpty(radiusMultiplier.text)
+                    ? (float?)null
+                    : float.Parse(radiusMultiplier.text);
 
-                var radiusMultiplier = (UITextField)batchEditGroup.AddTextfield("Radius multiplier", string.Empty, (s) => { });
-                radiusMultiplier.numericalOnly = true;
-                radiusMultiplier.allowFloats = true;
+                this.currentProfile.BatchEdit(accumulationMultiplierValue, radiusMultiplierValue);
 
-                batchEditGroup.AddButton("Apply", () => 
-                {
-                    float? accumulationMultiplierValue = string.IsNullOrEmpty(accumulationMultiplier.text)
-                        ? (float?)null
-                        : float.Parse(accumulationMultiplier.text);
+                this.gameEngineService.ApplyToGame(this.currentProfile);
+                this.configurationService.SaveProfile(this.currentProfile)
+                    .OnFailure(error => throw new Exception(error));
 
-                    float? radiusMultiplierValue = string.IsNullOrEmpty(radiusMultiplier.text)
-                        ? (float?)null
-                        : float.Parse(radiusMultiplier.text);
+                accumulationMultiplier.text = string.Empty;
+                radiusMultiplier.text = string.Empty;
+            });
 
-                    this.currentProfile.BatchEdit(accumulationMultiplierValue, radiusMultiplierValue);
-
-                    this.gameEngineService.ApplyToGame(this.currentProfile);
-                    this.configurationService.SaveProfile(this.currentProfile)
-                        .OnFailure(error => throw new Exception(error));
-
-                    accumulationMultiplier.text = string.Empty;
-                    radiusMultiplier.text = string.Empty;
-                });
-
-                var manualEditGroup = mainGroupUiHelper.AddGroup("Manually edit");
-                manualEditGroup.AddButton("Open file", () =>
-                {
-                    System.Diagnostics.Process.Start(this.currentConfigFile.FullName);
-                });
-                manualEditGroup.AddButton("Apply", () =>
-                {
-                    this.currentProfile = this.configurationService
-                        .LoadProfile()
-                        .OnFailure(error => throw new Exception(error))
-                        .Value
-                        .Value;
-
-                    this.gameEngineService.ApplyToGame(this.currentProfile);
-                });
-            }
-            else
+            var manualEditGroup = mainGroupUiHelper.AddGroup("Manually edit");
+            manualEditGroup.AddButton("Open file", () =>
             {
-                //TODO
-            }
+                System.Diagnostics.Process.Start(this.currentConfigFile.FullName);
+            });
+            manualEditGroup.AddButton("Apply", () =>
+            {
+                this.currentProfile = this.configurationService
+                    .LoadProfile()
+                    .OnFailure(error => throw new Exception(error))
+                    .Value
+                    .Value;
+
+                this.gameEngineService.ApplyToGame(this.currentProfile);
+            });
         }
 
         public void InitializeDependencies()
@@ -124,6 +105,12 @@ namespace ServiceRadiusAdjuster
             this.configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
             this.currentConfigFile = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, "ServiceRadiusAdjuster_v3.xml"));
             this.configurationService = new ConfigurationService(currentConfigFile);
+
+            this.currentProfile = this.configurationService
+                .LoadProfile()
+                .OnFailure(error => throw new Exception(error))
+                .Value
+                .Unwrap(new Profile());
         }
 
         public void UninitializeDependencies()
@@ -133,9 +120,11 @@ namespace ServiceRadiusAdjuster
             this.configFilesDirectory = null;
             this.currentConfigFile = null;
             this.configurationService = null;
+
+            this.currentProfile = null;
         }
 
-        public void InitializeMod()
+        public void UpdateProfileWithNewItemsAndApplyToGame()
         {
             var currentProfileMaybe = this.configurationService
                 .LoadProfile()
@@ -156,11 +145,6 @@ namespace ServiceRadiusAdjuster
                 .OnFailure(error => throw new Exception(error));
 
             this.gameEngineService.ApplyToGame(this.currentProfile);
-        }
-
-        public void UninitializeMod()
-        {
-            //TODO no need actually
         }
     }
 }
