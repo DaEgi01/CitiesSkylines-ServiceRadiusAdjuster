@@ -34,6 +34,7 @@ namespace ServiceRadiusAdjuster.Model
         public static readonly Category PublicTransportMonorail = new Category("PublicTransportMonorail", "Public Transport - Monorail");
         public static readonly Category PublicTransportCableCar = new Category("PublicTransportPlane", "Public Transport - Plane");
         public static readonly Category PublicTransportTaxi = new Category("PublicTransportTaxi", "Public Transport - Taxi");
+        public static readonly Category PublicTransportPost = new Category("PublicTransportPost", "Public Transport - Post");
         public static readonly Category BeautificationParks = new Category("BeautificationParks", "Beautification - Parks");
         public static readonly Category BeautificationPlazas = new Category("BeautificationPlazas", "Beautification - Plazas");
         public static readonly Category BeautificationOthers = new Category("BeautificationOthers", "Beautification - Others");
@@ -73,6 +74,7 @@ namespace ServiceRadiusAdjuster.Model
                 PublicTransportMonorail,
                 PublicTransportCableCar,
                 PublicTransportTaxi,
+                PublicTransportPost,
                 BeautificationParks,
                 BeautificationPlazas,
                 BeautificationOthers,

@@ -69,5 +69,29 @@ namespace ServiceRadiusAdjuster.Model
                 }
             }
         }
+
+        public void BatchEdit(float? accumulationMultiplier, float? radiusMultiplier)
+        {
+            if (!accumulationMultiplier.HasValue && !radiusMultiplier.HasValue)
+            {
+                return;
+            }
+
+            foreach (var viewGroup in this.ViewGroups)
+            {
+                foreach (var optionItem in viewGroup.OptionItems)
+                {
+                    if (accumulationMultiplier.HasValue && optionItem.AccumulationDefault.HasValue)
+                    {
+                        optionItem.SetAccumulation((int)(accumulationMultiplier.Value * optionItem.AccumulationDefault.Value));
+                    }
+
+                    if (radiusMultiplier.HasValue && optionItem.RadiusDefault.HasValue)
+                    {
+                        optionItem.SetRadius(radiusMultiplier.Value * optionItem.RadiusDefault.Value);
+                    }
+                }
+            }
+        }
     }
 }

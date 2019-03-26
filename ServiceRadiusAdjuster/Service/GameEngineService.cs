@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace ServiceRadiusAdjuster.Service
 {
-    public class GameEngineService : IGameEngineService
+    public class GameEngineService
     {
         //TODO localization
         private readonly string cantApplyValue = "Value can't be applied to the game.";
@@ -29,6 +29,7 @@ namespace ServiceRadiusAdjuster.Service
             var educationOptionItems = new List<OptionItem>();
             var publicTransportOptionItems = new List<OptionItem>();
             var cargoTransportOptionItems = new List<OptionItem>();
+            var postServiceOptionItems = new List<OptionItem>();
             var entertainmentParksOptionItems = new List<OptionItem>();
             var entertainmentPlazasOptionItems = new List<OptionItem>();
             var entertainmentOtherParksOptionItems = new List<OptionItem>();
@@ -138,6 +139,9 @@ namespace ServiceRadiusAdjuster.Service
                         var monumentList = GetAppropriateMonumentList(bi.category);
                         monumentList.Add(monumentOptionItem);
                         break;
+                    case PostOfficeAI postOfficeAi:
+                        postServiceOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), postOfficeAi.m_serviceAccumulation, postOfficeAi.m_serviceAccumulation, postOfficeAi.m_serviceRadius, postOfficeAi.m_serviceRadius));
+                        break;
                 }
             }
 
@@ -157,7 +161,8 @@ namespace ServiceRadiusAdjuster.Service
                     || ti.category == Category.PublicTransportPlane.Name
                     || ti.category == Category.PublicTransportShip.Name
                     || ti.category == Category.PublicTransportTrain.Name
-                    || ti.category == Category.PublicTransportTram.Name)
+                    || ti.category == Category.PublicTransportTram.Name
+                )
                 {
                     var ai = ti.m_netInfo.GetAI() as TransportLineAI;
                     if (ai == null)
@@ -182,6 +187,7 @@ namespace ServiceRadiusAdjuster.Service
                 new ViewGroup("Education", 600, educationOptionItems),
                 new ViewGroup("Public Transport", 700, publicTransportOptionItems),
                 new ViewGroup("Cargo Transport", 800, cargoTransportOptionItems),
+                new ViewGroup("Post Service", 850, postServiceOptionItems),
                 new ViewGroup("Entertainment - Parks", 900, entertainmentParksOptionItems),
                 new ViewGroup("Entertainment - Plazas", 1000, entertainmentPlazasOptionItems),
                 new ViewGroup("Entertainment - Other Parks", 1100, entertainmentOtherParksOptionItems),
@@ -355,6 +361,10 @@ namespace ServiceRadiusAdjuster.Service
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, policeStationAi.m_policeDepartmentAccumulation, policeStationAi.m_policeDepartmentRadius)
                         );
+                    case PostOfficeAI postOfficeAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, postOfficeAi.m_serviceAccumulation, postOfficeAi.m_serviceRadius)
+                        );
                     case SchoolAI schoolAi:
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, schoolAi.m_educationAccumulation, schoolAi.m_educationRadius)
@@ -417,7 +427,7 @@ namespace ServiceRadiusAdjuster.Service
 
             if (errors.Any())
             {
-                return Result.Fail(errors.Aggregate(string.Empty, (x, y) => x + ";" + y));
+                return Result.Fail(string.Join(Environment.NewLine, errors.ToArray()));
             }
 
             return Result.Ok();
@@ -535,6 +545,10 @@ namespace ServiceRadiusAdjuster.Service
                 case PoliceStationAI policeStationAi:
                     policeStationAi.m_policeDepartmentAccumulation = optionItem.Accumulation.Value;
                     policeStationAi.m_policeDepartmentRadius = optionItem.Radius.Value;
+                    break;
+                case PostOfficeAI postOfficeAi:
+                    postOfficeAi.m_serviceAccumulation = optionItem.Accumulation.Value;
+                    postOfficeAi.m_serviceRadius = optionItem.Radius.Value;
                     break;
                 case RadioMastAI radioMastAi:
                     radioMastAi.m_transmitterPower = Convert.ToInt32(optionItem.Radius);

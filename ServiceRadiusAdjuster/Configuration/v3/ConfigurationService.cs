@@ -65,6 +65,11 @@ namespace ServiceRadiusAdjuster.Configuration.v3
 
         public Result SaveProfile(Profile profile)
         {
+            if (profile == null)
+            {
+                throw new ArgumentNullException(nameof(profile));
+            }
+
             var viewGroupDtos = new List<ViewGroupDto>();
             foreach (var viewGroup in profile.ViewGroups)
             {
