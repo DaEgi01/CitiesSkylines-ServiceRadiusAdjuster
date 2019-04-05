@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ServiceRadiusAdjuster.Model
 {
-    public class ServiceType : TypesafeEnum
+    public sealed class ServiceType : IEquatable<ServiceType>
     {
-        private ServiceType(string name) : base(name)
+        private ServiceType(string name)
         {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
         }
+
+        public string Name { get; }
 
         public static readonly ServiceType Building = new ServiceType("Building");
         public static readonly ServiceType Transport = new ServiceType("Transport");
@@ -24,15 +28,38 @@ namespace ServiceRadiusAdjuster.Model
         public static ServiceType FromName(string name)
         {
             var result = GetAll().SingleOrDefault(s => s.Name == name);
-
             if (result == null)
             {
-                return new ServiceType(name);
+                throw new Exception($"Unknown ServiceType '{name}'.");
             }
-            else
-            {
-                return result;
-            }
+
+            return result;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ServiceType);
+        }
+
+        public bool Equals(ServiceType other)
+        {
+            return other != null &&
+                   Name == other.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            return 539060726 + EqualityComparer<string>.Default.GetHashCode(Name);
+        }
+
+        public static bool operator ==(ServiceType type1, ServiceType type2)
+        {
+            return EqualityComparer<ServiceType>.Default.Equals(type1, type2);
+        }
+
+        public static bool operator !=(ServiceType type1, ServiceType type2)
+        {
+            return !(type1 == type2);
         }
     }
 }

@@ -9,6 +9,11 @@ namespace ServiceRadiusAdjuster.Model
     {
         private readonly List<ViewGroup> viewGroups;
 
+        public Profile()
+            : this(new List<ViewGroup>())
+        {
+        }
+
         public Profile(List<ViewGroup> viewGroups)
         {
             this.viewGroups = viewGroups ?? throw new ArgumentNullException(nameof(viewGroups));
@@ -60,6 +65,30 @@ namespace ServiceRadiusAdjuster.Model
                     if (oldValues.TryGetValue(optionItem.SystemName, out float radius))
                     {
                         optionItem.SetRadius(radius);
+                    }
+                }
+            }
+        }
+
+        public void BatchEdit(float? accumulationMultiplier, float? radiusMultiplier)
+        {
+            if (!accumulationMultiplier.HasValue && !radiusMultiplier.HasValue)
+            {
+                return;
+            }
+
+            foreach (var viewGroup in this.ViewGroups)
+            {
+                foreach (var optionItem in viewGroup.OptionItems)
+                {
+                    if (accumulationMultiplier.HasValue && optionItem.AccumulationDefault.HasValue)
+                    {
+                        optionItem.SetAccumulation((int)(accumulationMultiplier.Value * optionItem.AccumulationDefault.Value));
+                    }
+
+                    if (radiusMultiplier.HasValue && optionItem.RadiusDefault.HasValue)
+                    {
+                        optionItem.SetRadius(radiusMultiplier.Value * optionItem.RadiusDefault.Value);
                     }
                 }
             }

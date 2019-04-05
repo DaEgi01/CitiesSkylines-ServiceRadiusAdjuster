@@ -71,7 +71,6 @@ namespace ServiceRadiusAdjusterTests
             };
 
             var expected = new Profile(expectedViewGroups).ViewGroups.SelectMany(vg => vg.OptionItems);
-
             var actual = profile.Combine(newViewGroups).ViewGroups.SelectMany(vg => vg.OptionItems);
 
             var expectedList = expected.ToList();

@@ -1,196 +1,150 @@
 ﻿using ColossalFramework.IO;
+using ColossalFramework.UI;
 using ICities;
 using ServiceRadiusAdjuster.Configuration;
+using ServiceRadiusAdjuster.Configuration.v3;
 using ServiceRadiusAdjuster.Model;
 using ServiceRadiusAdjuster.Service;
-using ServiceRadiusAdjuster.View;
 using System;
 using System.IO;
-using YamlDotNet.Serialization;
 
 namespace ServiceRadiusAdjuster
 {
-    public class Mod : IUserMod, ILoadingExtension
+    public class Mod : LoadingExtensionBase, IUserMod
     {
-        //initialization during 'OnEnabled'
-        private IGameEngineService gameEngineService;
-        private OptionsUiBuilder optionsUiBuilder;
+        private ModFullTitle modFullTitle;
+        private GameEngineService gameEngineService;
         private DirectoryInfo configFilesDirectory;
+        private FileInfo currentConfigFile;
         private IConfigurationService configurationService;
-
-        private bool onCreatedInvoked = false;
-
-        //initalization during 'OnSettingsUI'
-        private UIHelperBase helper;
-
-        //TODO localization
-        private string migrationWarning = "A new version of the 'Service Radius Adjuster' is out" +
-            " and with it a new file format to save your values." +
-            " I tried to migrate most of your settings over to the new file format," +
-            " but due to technical reasons, I could not do that for every case." +
-            " \n\nIf you have loaded a map with the european theme, " +
-            " you have to set the values for the non european buildings again and vice versa." +
-            " You will be able to set these values, once you load a map with a non european theme." +
-            " \n\nI beg your pardon for this inconvenience, and wish you a lot of fun with Cities: Skylines.";
+        private Profile currentProfile;
 
         public string Name => "Service Radius Adjuster";
         public string SystemName => "ServiceRadiusAdjuster";
-        //TODO localization
+
         public string Description => "Adjusts the effect radius of service buildings in your city.";
-        public string Version => "1.5.0";
+        public string Version => "1.6.0";
 
         public void OnEnabled()
         {
-            this.gameEngineService = new GameEngineService();
-            this.optionsUiBuilder = new OptionsUiBuilder();
-            this.configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
-            var configFileV3 = new FileInfo(Path.Combine(configFilesDirectory.FullName, ConfigFile.ConfigFile_v3.Name));
-            this.configurationService = new Configuration.v3.ConfigurationService(configFileV3);
+            InitializeDependencies();
 
-            var oldConfigFilesDirectory = new DirectoryInfo(Path.Combine(DataLocation.modsPath, SystemName));
-
-            OldYamlConfigurationService.MoveOldConfigurationFilesToNewFolder(oldConfigFilesDirectory, configFilesDirectory, "*.yaml");
+            if (LoadingManager.exists && LoadingManager.instance.m_loadingComplete)
+            {
+                UpdateProfileWithNewItemsAndApplyToGame();
+            }
         }
 
         public void OnDisabled()
         {
+            UninitializeDependencies();
+        }
+
+        public override void OnLevelLoaded(LoadMode mode)
+        {
+            UpdateProfileWithNewItemsAndApplyToGame();
+        }
+
+        public void OnSettingsUI(UIHelperBase uIHelperBase)
+        {
+            var mainGroupUiHelper = uIHelperBase.AddGroup(this.modFullTitle);
+            var mainGroupContentPanel = (mainGroupUiHelper as UIHelper).self as UIPanel;
+            mainGroupContentPanel.backgroundSprite = string.Empty;
+
+            var batchEditGroup = mainGroupUiHelper.AddGroup("Batch edit");
+
+            var accumulationMultiplier = (UITextField)batchEditGroup.AddTextfield("Accumulation multiplier", string.Empty, (s) => { });
+            accumulationMultiplier.numericalOnly = true;
+            accumulationMultiplier.allowFloats = true;
+
+            var radiusMultiplier = (UITextField)batchEditGroup.AddTextfield("Radius multiplier", string.Empty, (s) => { });
+            radiusMultiplier.numericalOnly = true;
+            radiusMultiplier.allowFloats = true;
+
+            batchEditGroup.AddButton("Apply", () =>
+            {
+                float? accumulationMultiplierValue = string.IsNullOrEmpty(accumulationMultiplier.text)
+                    ? (float?)null
+                    : float.Parse(accumulationMultiplier.text);
+
+                float? radiusMultiplierValue = string.IsNullOrEmpty(radiusMultiplier.text)
+                    ? (float?)null
+                    : float.Parse(radiusMultiplier.text);
+
+                this.currentProfile.BatchEdit(accumulationMultiplierValue, radiusMultiplierValue);
+
+                this.gameEngineService.ApplyToGame(this.currentProfile);
+                this.configurationService.SaveProfile(this.currentProfile)
+                    .OnFailure(error => throw new Exception(error));
+
+                accumulationMultiplier.text = string.Empty;
+                radiusMultiplier.text = string.Empty;
+            });
+
+            var manualEditGroup = mainGroupUiHelper.AddGroup("Manually edit");
+            manualEditGroup.AddButton("Open file", () =>
+            {
+                System.Diagnostics.Process.Start(this.currentConfigFile.FullName);
+            });
+            manualEditGroup.AddButton("Apply", () =>
+            {
+                this.currentProfile = this.configurationService
+                    .LoadProfile()
+                    .OnFailure(error => throw new Exception(error))
+                    .Value
+                    .Value;
+
+                this.gameEngineService.ApplyToGame(this.currentProfile);
+            });
+        }
+
+        public void InitializeDependencies()
+        {
+            this.modFullTitle = new ModFullTitle(this.Name, this.Version);
+            this.gameEngineService = new GameEngineService();
+            this.configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
+            this.currentConfigFile = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, "ServiceRadiusAdjuster_v3.xml"));
+            this.configurationService = new ConfigurationService(currentConfigFile);
+
+            this.currentProfile = this.configurationService
+                .LoadProfile()
+                .OnFailure(error => throw new Exception(error))
+                .Value
+                .Unwrap(new Profile());
+        }
+
+        public void UninitializeDependencies()
+        {
+            this.modFullTitle = null;
             this.gameEngineService = null;
-            this.optionsUiBuilder = null;
             this.configFilesDirectory = null;
+            this.currentConfigFile = null;
             this.configurationService = null;
+
+            this.currentProfile = null;
         }
 
-        public void OnCreated(ILoading loading)
+        public void UpdateProfileWithNewItemsAndApplyToGame()
         {
-            this.onCreatedInvoked = true;
-        }
+            var currentProfileMaybe = this.configurationService
+                .LoadProfile()
+                .OnFailure(error => throw new Exception(error))
+                .Value;
 
-        public void OnReleased()
-        {
-        }
+            var viewGroupsInGame = gameEngineService
+                .GetViewGroupsFromGame()
+                .OnFailure(error => throw new Exception(error))
+                .Value;
 
-        public void OnSettingsUI(UIHelperBase helper)
-        {
-            this.helper = helper; //in the regular case, the mod will be initialized during 'OnLevelLoaded' but a reference to the uihelper is needed.
+            this.currentProfile = currentProfileMaybe
+                .Unwrap(new Profile())
+                .Combine(viewGroupsInGame);
 
-            if (this.onCreatedInvoked)
-            {
-                this.optionsUiBuilder.BuildHotReloadUnsupportedUi(helper, this.Name, this.Version);
-                this.onCreatedInvoked = false;
-            }
-            else
-            {
-                this.optionsUiBuilder.BuildNoProfileUi(helper, this.Name, this.Version);
-            }
-        }
+            var saveProfileResult = configurationService
+                .SaveProfile(this.currentProfile)
+                .OnFailure(error => throw new Exception(error));
 
-        public void OnLevelLoaded(LoadMode mode)
-        {
-            if (!(mode == LoadMode.LoadGame || mode == LoadMode.NewGame || mode == LoadMode.NewGameFromScenario) || this.onCreatedInvoked)
-            {
-                this.onCreatedInvoked = false;
-                return;
-            }
-
-            this.InitializeMod(this.helper, this.Name, this.Version, this.configurationService, this.gameEngineService);
-        }
-
-        public void OnLevelUnloading()
-        {
-        }
-
-        private void InitializeMod(UIHelperBase helper, string modName, string modVersion, IConfigurationService configurationService, IGameEngineService gameEngineService)
-        {
-            this.optionsUiBuilder.ClearExistingUi(helper);
-
-            var getViewGroupsResult = gameEngineService.GetViewGroupsFromGame();
-            if (getViewGroupsResult.IsFailure)
-            {
-                throw new Exception(getViewGroupsResult.Error);
-            }
-            var viewGroupsInGame = getViewGroupsResult.Value;
-
-            var loadProfileResult = this.configurationService.LoadProfile();
-            if (loadProfileResult.IsFailure)
-            {
-                throw new Exception(loadProfileResult.Error);
-            }
-
-            Profile currentProfile;
-            var loadProfileMaybe = loadProfileResult.Value;
-            if (loadProfileMaybe.HasValue)
-            {
-                currentProfile = loadProfileMaybe.Value.Combine(viewGroupsInGame);
-            }
-            else
-            {
-                currentProfile = new Profile(viewGroupsInGame); //generate new profile
-            }
-
-            //apply old radius values
-            var yamlDeserializer = new Deserializer();
-
-            var configFileV0 = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, ConfigFile.ConfigFile_v0.Name));
-            var configurationServiceV0 = new Configuration.v0.ConfigurationService(yamlDeserializer);
-            var oldPersistedValuesV0Result = configurationServiceV0.GetConfigValues(configFileV0);
-            if (oldPersistedValuesV0Result.IsFailure)
-            {
-                throw new Exception(oldPersistedValuesV0Result.Error);
-            }
-
-            var configFileV1 = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, ConfigFile.ConfigFile_v1.Name));
-            var configurationServiceV1 = new Configuration.v1.ConfigurationService(yamlDeserializer);
-            var oldPersistedValuesV1Result = configurationServiceV1.GetConfigValues(configFileV1);
-            if (oldPersistedValuesV1Result.IsFailure)
-            {
-                throw new Exception(oldPersistedValuesV1Result.Error);
-            }
-
-            var configFileV2 = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, ConfigFile.ConfigFile_v2.Name));
-            var configurationServiceV2 = new Configuration.v2.ConfigurationService(yamlDeserializer);
-            var oldPersistedValuesV2Result = configurationServiceV2.GetConfigValues(configFileV2);
-            if (oldPersistedValuesV2Result.IsFailure)
-            {
-                throw new Exception(oldPersistedValuesV2Result.Error);
-            }
-
-            var combinedOldPersistetValues = oldPersistedValuesV0Result.Value
-                .CombineAndUpdate(oldPersistedValuesV1Result.Value)
-                .CombineAndUpdate(oldPersistedValuesV2Result.Value);
-
-            currentProfile.ApplyOldValues(combinedOldPersistetValues);
-
-            var saveProfileResult = configurationService.SaveProfile(currentProfile);
-            if (saveProfileResult.IsFailure)
-            {
-                throw new Exception(saveProfileResult.Error);
-            }
-
-            var backupConfigFileV0Result = configurationServiceV0.BackupConfigFileIfItExists(configFileV0);
-            if (backupConfigFileV0Result.IsFailure)
-            {
-                throw new Exception(backupConfigFileV0Result.Error);
-            }
-
-            var backupConfigFileV1Result = configurationServiceV1.BackupConfigFileIfItExists(configFileV1);
-            if (backupConfigFileV1Result.IsFailure)
-            {
-                throw new Exception(backupConfigFileV1Result.Error);
-            }
-
-            var backupConfigFileV2Result = configurationServiceV2.BackupConfigFileIfItExists(configFileV2);
-            if (backupConfigFileV2Result.IsFailure)
-            {
-                throw new Exception(backupConfigFileV2Result.Error);
-            }
-
-            if (combinedOldPersistetValues.Count > 0 && this.onCreatedInvoked)
-            {
-                this.optionsUiBuilder.ShowExceptionPanel(this.Name, this.migrationWarning, false);
-            }
-
-            this.optionsUiBuilder.BuildProfileUi(helper, modName, modVersion, currentProfile, configurationService, gameEngineService);
-            this.optionsUiBuilder.GlobalOptionsPresenter.ApplyAll();
+            this.gameEngineService.ApplyToGame(this.currentProfile);
         }
     }
 }

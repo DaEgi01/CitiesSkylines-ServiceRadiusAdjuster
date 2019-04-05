@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using ServiceRadiusAdjuster.Model;
+﻿using ServiceRadiusAdjuster.Model;
 
 namespace ServiceRadiusAdjuster.Configuration
 {
-    public interface IConfigurationService
+    public interface IConfigurationService : IConfigFileVersion
     {
-        string Version { get; }
         Result<Maybe<Profile>> LoadProfile();
         Result SaveProfile(Profile profile);
     }

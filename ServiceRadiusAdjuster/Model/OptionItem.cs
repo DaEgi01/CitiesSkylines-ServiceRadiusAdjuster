@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ServiceRadiusAdjuster.Model
 {
@@ -8,7 +9,8 @@ namespace ServiceRadiusAdjuster.Model
         private readonly string couldNotParseAccumulationError = "Could not parse the new accumulation value. Please enter a valid number.";
         private readonly string couldNotParseRadiusError = "Could not parse the new radius value. Please enter a valid number.";
 
-        public OptionItem(ServiceType serviceType,
+        public OptionItem(
+            ServiceType serviceType,
             string systemName,
             string displayName,
             int? accumulation,
@@ -77,8 +79,7 @@ namespace ServiceRadiusAdjuster.Model
 
         public override bool Equals(object obj)
         {
-            var oi = obj as OptionItem;
-            return Equals(oi);
+            return this.Equals(obj as OptionItem);
         }
 
         public bool Equals(OptionItem other)
@@ -93,30 +94,38 @@ namespace ServiceRadiusAdjuster.Model
                 return true;
             }
 
-            return
-            (
-                ServiceType == other.ServiceType
-                && SystemName == other.SystemName
-                && DisplayName == other.DisplayName
-                && AccumulationDefault == other.AccumulationDefault
-                && RadiusDefault == other.RadiusDefault
-                && Ignore == other.Ignore
-            );
+            return this.ServiceType == other.ServiceType &&
+                this.SystemName == other.SystemName &&
+                this.DisplayName == other.DisplayName &&
+                this.Accumulation == other.Accumulation &&
+                this.AccumulationDefault == other.AccumulationDefault &&
+                this.Radius == other.Radius &&
+                this.RadiusDefault == other.RadiusDefault &&
+                this.Ignore == other.Ignore;
         }
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hash = 23;
-                hash = 17 * ServiceType.GetHashCode();
-                hash = 17 * SystemName.GetHashCode();
-                hash = 17 * DisplayName.GetHashCode();
-                hash = 17 * AccumulationDefault.GetHashCode();
-                hash = 17 * RadiusDefault.GetHashCode();
-                hash = 17 * Ignore.GetHashCode();
-                return hash;
-            }
+            var hashCode = -173902468;
+            hashCode = hashCode * -1521134295 + EqualityComparer<ServiceType>.Default.GetHashCode(this.ServiceType);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.SystemName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.DisplayName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int?>.Default.GetHashCode(this.Accumulation);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int?>.Default.GetHashCode(this.AccumulationDefault);
+            hashCode = hashCode * -1521134295 + EqualityComparer<float?>.Default.GetHashCode(this.Radius);
+            hashCode = hashCode * -1521134295 + EqualityComparer<float?>.Default.GetHashCode(this.RadiusDefault);
+            hashCode = hashCode * -1521134295 + EqualityComparer<bool>.Default.GetHashCode(this.Ignore);
+            return hashCode;
+        }
+
+        public static bool operator ==(OptionItem item1, OptionItem item2)
+        {
+            return EqualityComparer<OptionItem>.Default.Equals(item1, item2);
+        }
+
+        public static bool operator !=(OptionItem item1, OptionItem item2)
+        {
+            return !(item1 == item2);
         }
     }
 }
