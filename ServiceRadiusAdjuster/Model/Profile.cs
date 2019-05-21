@@ -17,9 +17,10 @@ namespace ServiceRadiusAdjuster.Model
         public Profile(List<ViewGroup> viewGroups)
         {
             this.viewGroups = viewGroups ?? throw new ArgumentNullException(nameof(viewGroups));
+            this.ViewGroups = new ReadOnlyCollection<ViewGroup>(this.viewGroups);
         }
 
-        public ReadOnlyCollection<ViewGroup> ViewGroups => viewGroups.AsReadOnly();
+        public ReadOnlyCollection<ViewGroup> ViewGroups { get; }
 
         /// <summary>
         /// Adds new OptionItems into the appropriate group.
