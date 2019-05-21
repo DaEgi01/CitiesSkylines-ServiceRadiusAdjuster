@@ -551,7 +551,7 @@ namespace ServiceRadiusAdjuster.Service
                     postOfficeAi.m_serviceRadius = optionItem.Radius.Value;
                     break;
                 case RadioMastAI radioMastAi:
-                    radioMastAi.m_transmitterPower = Convert.ToInt32(optionItem.Radius);
+                    radioMastAi.m_transmitterPower = (int)optionItem.Radius.Value;
                     break;
                 case SaunaAI saunaAi:
                     saunaAi.m_healthCareAccumulation = optionItem.Accumulation.Value;
