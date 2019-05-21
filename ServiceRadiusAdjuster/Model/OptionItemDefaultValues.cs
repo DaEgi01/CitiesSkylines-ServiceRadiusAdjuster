@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-
-namespace ServiceRadiusAdjuster.Model
+﻿namespace ServiceRadiusAdjuster.Model
 {
-    public class OptionItemDefaultValues : ValueObject
+    public readonly struct OptionItemDefaultValues
     {
         public OptionItemDefaultValues(string systemName, int? accumulationDefault, float radiusDefault)
         {
@@ -14,12 +12,5 @@ namespace ServiceRadiusAdjuster.Model
         public string SystemName { get; }
         public int? AccumulationDefault { get; }
         public float RadiusDefault { get; }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return SystemName;
-            yield return AccumulationDefault;
-            yield return RadiusDefault;
-        }
     }
 }

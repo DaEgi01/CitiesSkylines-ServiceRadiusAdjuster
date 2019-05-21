@@ -75,7 +75,6 @@
     <Compile Include="Configuration\v3\ConfigurationService.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="ResultExtensions.cs" />
-    <Compile Include="ValueObject.cs" />
     <Compile Include="Model\OptionItem.cs" />
     <Compile Include="Model\ViewGroup.cs" />
     <Compile Include="Service\GameEngineService.cs" />
