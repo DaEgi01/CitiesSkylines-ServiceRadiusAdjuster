@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace ServiceRadiusAdjuster
 {
@@ -11,12 +9,7 @@ namespace ServiceRadiusAdjuster
         {
             if (bPairs == null) throw new ArgumentNullException(nameof(bPairs));
 
-            var result = new Dictionary<string, float>();
-            foreach (var pair in aPairs)
-            {
-                result.Add(pair.Key, pair.Value);
-            }
-
+            var result = new Dictionary<string, float>(aPairs);
             foreach (var key in bPairs.Keys)
             {
                 if (result.ContainsKey(key))
