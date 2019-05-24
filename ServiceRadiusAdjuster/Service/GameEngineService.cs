@@ -120,6 +120,12 @@ namespace ServiceRadiusAdjuster.Service
                     case PoliceStationAI policeStationAi:
                         policeDepartmentOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), policeStationAi.m_policeDepartmentAccumulation, policeStationAi.m_policeDepartmentAccumulation, policeStationAi.m_policeDepartmentRadius, policeStationAi.m_policeDepartmentRadius));
                         break;
+                    case UniqueFacultyAI uniqueFacultyAi:
+                        educationOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), uniqueFacultyAi.m_educationAccumulation, uniqueFacultyAi.m_educationAccumulation, uniqueFacultyAi.m_educationRadius, uniqueFacultyAi.m_educationRadius));
+                        break;
+                    case CampusBuildingAI campusBuildingAi:
+                        educationOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), campusBuildingAi.m_educationAccumulation, campusBuildingAi.m_educationAccumulation, campusBuildingAi.m_educationRadius, campusBuildingAi.m_educationRadius));
+                        break;
                     case SchoolAI schoolAi:
                         educationOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), schoolAi.m_educationAccumulation, schoolAi.m_educationAccumulation, schoolAi.m_educationRadius, schoolAi.m_educationRadius));
                         break;
@@ -134,6 +140,14 @@ namespace ServiceRadiusAdjuster.Service
                         var parkList = GetAppropriateParkList(bi.category);
                         parkList.Add(parkOptionItem);
                         break;
+                    case MuseumAI museumAi:
+                        educationOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), museumAi.m_entertainmentAccumulation, museumAi.m_entertainmentAccumulation, museumAi.m_entertainmentRadius, museumAi.m_entertainmentRadius));
+                        break;
+                    case VarsitySportsArenaAI varsitySportsArenaAi:
+                        var varsitySportsArenaÎtem = new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), varsitySportsArenaAi.m_entertainmentAccumulation, varsitySportsArenaAi.m_entertainmentAccumulation, varsitySportsArenaAi.m_entertainmentRadius, varsitySportsArenaAi.m_entertainmentRadius);
+                        var varsitySportsArenaList = GetAppropriateMonumentList(bi.category);
+                        varsitySportsArenaList.Add(varsitySportsArenaÎtem);
+                        break;
                     case MonumentAI monumentAi:
                         var monumentOptionItem = new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), monumentAi.m_entertainmentAccumulation, monumentAi.m_entertainmentAccumulation, monumentAi.m_entertainmentRadius, monumentAi.m_entertainmentRadius);
                         var monumentList = GetAppropriateMonumentList(bi.category);
@@ -141,6 +155,9 @@ namespace ServiceRadiusAdjuster.Service
                         break;
                     case PostOfficeAI postOfficeAi:
                         postServiceOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), postOfficeAi.m_serviceAccumulation, postOfficeAi.m_serviceAccumulation, postOfficeAi.m_serviceRadius, postOfficeAi.m_serviceRadius));
+                        break;
+                    case LibraryAI libraryAi:
+                        educationOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), libraryAi.m_libraryAccumulation, libraryAi.m_libraryAccumulation, libraryAi.m_libraryRadius, libraryAi.m_libraryRadius));
                         break;
                 }
             }
@@ -365,6 +382,14 @@ namespace ServiceRadiusAdjuster.Service
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, postOfficeAi.m_serviceAccumulation, postOfficeAi.m_serviceRadius)
                         );
+                    case UniqueFacultyAI uniqueFacultyAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, uniqueFacultyAi.m_educationAccumulation, uniqueFacultyAi.m_educationRadius)
+                        );
+                    case CampusBuildingAI campusBuildingAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, campusBuildingAi.m_educationAccumulation, campusBuildingAi.m_educationRadius)
+                        );
                     case SchoolAI schoolAi:
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, schoolAi.m_educationAccumulation, schoolAi.m_educationRadius)
@@ -381,9 +406,21 @@ namespace ServiceRadiusAdjuster.Service
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, parkAi.m_entertainmentAccumulation, parkAi.m_entertainmentRadius)
                         );
+                    case MuseumAI museumAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, museumAi.m_entertainmentAccumulation, museumAi.m_entertainmentRadius)
+                        );
+                    case VarsitySportsArenaAI varsitySportsArenaAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, varsitySportsArenaAi.m_entertainmentAccumulation, varsitySportsArenaAi.m_entertainmentRadius)
+                        );
                     case MonumentAI monumentAi:
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, monumentAi.m_entertainmentAccumulation, monumentAi.m_entertainmentRadius)
+                        );
+                    case LibraryAI libraryAi:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, libraryAi.m_libraryAccumulation, libraryAi.m_libraryRadius)
                         );
                     default:
                         return Result.Fail<Maybe<OptionItemDefaultValues>>(
@@ -538,6 +575,14 @@ namespace ServiceRadiusAdjuster.Service
                 case MaintenanceDepotAI maintenanceDepotAi:
                     maintenanceDepotAi.m_maintenanceRadius = optionItem.Radius.Value;
                     break;
+                case MuseumAI museumAi:
+                    museumAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
+                    museumAi.m_entertainmentRadius = optionItem.Radius.Value;
+                    break;
+                case VarsitySportsArenaAI varsitySportsArenaAi:
+                    varsitySportsArenaAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
+                    varsitySportsArenaAi.m_entertainmentRadius = optionItem.Radius.Value;
+                    break;
                 case MonumentAI monumentAi:
                     monumentAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
                     monumentAi.m_entertainmentRadius = optionItem.Radius.Value;
@@ -557,6 +602,14 @@ namespace ServiceRadiusAdjuster.Service
                     saunaAi.m_healthCareAccumulation = optionItem.Accumulation.Value;
                     saunaAi.m_healthCareRadius = optionItem.Radius.Value;
                     break;
+                case UniqueFacultyAI uniqueFacultyAi:
+                    uniqueFacultyAi.m_educationAccumulation = optionItem.Accumulation.Value;
+                    uniqueFacultyAi.m_educationRadius = optionItem.Radius.Value;
+                    break;
+                case CampusBuildingAI campusBuildingAi:
+                    campusBuildingAi.m_educationAccumulation = optionItem.Accumulation.Value;
+                    campusBuildingAi.m_educationRadius = optionItem.Radius.Value;
+                    break;
                 case SchoolAI schoolAi:
                     schoolAi.m_educationAccumulation = optionItem.Accumulation.Value;
                     schoolAi.m_educationRadius = optionItem.Radius.Value;
@@ -574,6 +627,10 @@ namespace ServiceRadiusAdjuster.Service
                     break;
                 case WaterFacilityAI waterFacilityAi:
                     waterFacilityAi.m_vehicleRadius = optionItem.Radius.Value;
+                    break;
+                case LibraryAI libraryAi:
+                    libraryAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
+                    libraryAi.m_libraryRadius = optionItem.Radius.Value;
                     break;
                 default:
                     return Result.Fail("Building AI was not recognized.");
