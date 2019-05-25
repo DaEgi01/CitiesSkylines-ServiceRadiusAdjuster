@@ -629,7 +629,7 @@ namespace ServiceRadiusAdjuster.Service
                     waterFacilityAi.m_vehicleRadius = optionItem.Radius.Value;
                     break;
                 case LibraryAI libraryAi:
-                    libraryAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
+                    libraryAi.m_libraryAccumulation = optionItem.Accumulation.Value;
                     libraryAi.m_libraryRadius = optionItem.Radius.Value;
                     break;
                 default:
