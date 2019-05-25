@@ -515,7 +515,7 @@ namespace ServiceRadiusAdjuster.Service
             var buildingInfo = PrefabCollection<BuildingInfo>.FindLoaded(optionItem.SystemName);
             if (buildingInfo == null)
             {
-                return Result.Fail($"Building '{optionItem.SystemName}' not found.");
+                return Result.Ok(); //Building not found but thats ok, because not all savegames have all buildings.
             }
 
             var ai = buildingInfo.GetAI();
