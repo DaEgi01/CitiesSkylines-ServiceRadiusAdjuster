@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 
 namespace ServiceRadiusAdjuster.Model
 {
+    //TODO flatten categories and remove support sub ui categories, since players will search for items anyway
     public sealed class Category
     {
         private Category(string name, string displayName)

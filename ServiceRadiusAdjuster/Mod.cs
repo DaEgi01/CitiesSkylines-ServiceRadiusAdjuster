@@ -17,11 +17,9 @@ namespace ServiceRadiusAdjuster
         private DirectoryInfo configFilesDirectory;
         private FileInfo currentConfigFile;
         private IConfigurationService configurationService;
-        private Profile currentProfile;
 
         public string Name => "Service Radius Adjuster";
         public string SystemName => "ServiceRadiusAdjuster";
-
         public string Description => "Adjusts the effect radius of service buildings in your city.";
         public string Version => "1.6.0";
 
@@ -31,7 +29,7 @@ namespace ServiceRadiusAdjuster
 
             if (LoadingManager.exists && LoadingManager.instance.m_loadingComplete)
             {
-                UpdateProfileWithNewItemsAndApplyToGame();
+                InitializeMod();
             }
         }
 
@@ -42,12 +40,12 @@ namespace ServiceRadiusAdjuster
 
         public override void OnLevelLoaded(LoadMode mode)
         {
-            UpdateProfileWithNewItemsAndApplyToGame();
+            InitializeMod();
         }
 
         public void OnSettingsUI(UIHelperBase uIHelperBase)
         {
-            var mainGroupUiHelper = uIHelperBase.AddGroup(this.modFullTitle);
+            var mainGroupUiHelper = uIHelperBase.AddGroup(modFullTitle);
             var mainGroupContentPanel = (mainGroupUiHelper as UIHelper).self as UIPanel;
             mainGroupContentPanel.backgroundSprite = string.Empty;
 
@@ -71,11 +69,10 @@ namespace ServiceRadiusAdjuster
                     ? (float?)null
                     : float.Parse(radiusMultiplier.text);
 
-                this.currentProfile.BatchEdit(accumulationMultiplierValue, radiusMultiplierValue);
-
-                this.gameEngineService.ApplyToGame(this.currentProfile);
-                this.configurationService.SaveProfile(this.currentProfile)
-                    .OnFailure(error => throw new Exception(error));
+                var profile = LoadProfileOrDefaultOrThrowException();
+                profile.BatchEdit(accumulationMultiplierValue, radiusMultiplierValue);
+                ApplyToGameOrThrowException(profile);
+                SaveProfileOrThrowException(profile);
 
                 accumulationMultiplier.text = string.Empty;
                 radiusMultiplier.text = string.Empty;
@@ -84,67 +81,68 @@ namespace ServiceRadiusAdjuster
             var manualEditGroup = mainGroupUiHelper.AddGroup("Manually edit");
             manualEditGroup.AddButton("Open file", () =>
             {
-                System.Diagnostics.Process.Start(this.currentConfigFile.FullName);
+                System.Diagnostics.Process.Start(currentConfigFile.FullName);
             });
             manualEditGroup.AddButton("Apply", () =>
             {
-                this.currentProfile = this.configurationService
-                    .LoadProfile()
-                    .OnFailure(error => throw new Exception(error))
-                    .Value
-                    .Value;
-
-                this.gameEngineService.ApplyToGame(this.currentProfile);
+                var profile = LoadProfileOrDefaultOrThrowException();
+                ApplyToGameOrThrowException(profile);
             });
         }
 
         public void InitializeDependencies()
         {
-            this.modFullTitle = new ModFullTitle(this.Name, this.Version);
-            this.gameEngineService = new GameEngineService();
-            this.configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
-            this.currentConfigFile = new FileInfo(Path.Combine(this.configFilesDirectory.FullName, "ServiceRadiusAdjuster_v3.xml"));
-            this.configurationService = new ConfigurationService(currentConfigFile);
+            modFullTitle = new ModFullTitle(Name, Version);
+            gameEngineService = new GameEngineService();
+            configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
+            currentConfigFile = new FileInfo(Path.Combine(configFilesDirectory.FullName, "ServiceRadiusAdjuster_v3.xml"));
+            configurationService = new ConfigurationService(currentConfigFile);
+        }
 
-            this.currentProfile = this.configurationService
+        public void UninitializeDependencies()
+        {
+            modFullTitle = null;
+            gameEngineService = null;
+            configFilesDirectory = null;
+            currentConfigFile = null;
+            configurationService = null;
+        }
+
+        public void InitializeMod()
+        {
+            var existingOrNewProfile = LoadProfileOrDefaultOrThrowException();
+            var updatedProfile = UpdateProfileWithNewItemsOrThrowException(existingOrNewProfile);
+            ApplyToGameOrThrowException(updatedProfile);
+            SaveProfileOrThrowException(updatedProfile);
+        }
+
+        public Profile LoadProfileOrDefaultOrThrowException()
+        {
+            return configurationService
                 .LoadProfile()
                 .OnFailure(error => throw new Exception(error))
                 .Value
                 .Unwrap(new Profile());
         }
 
-        public void UninitializeDependencies()
+        public Profile UpdateProfileWithNewItemsOrThrowException(Profile profile)
         {
-            this.modFullTitle = null;
-            this.gameEngineService = null;
-            this.configFilesDirectory = null;
-            this.currentConfigFile = null;
-            this.configurationService = null;
-
-            this.currentProfile = null;
-        }
-
-        public void UpdateProfileWithNewItemsAndApplyToGame()
-        {
-            var currentProfileMaybe = this.configurationService
-                .LoadProfile()
-                .OnFailure(error => throw new Exception(error))
-                .Value;
-
-            var viewGroupsInGame = gameEngineService
+            return profile.Combine(gameEngineService
                 .GetViewGroupsFromGame()
                 .OnFailure(error => throw new Exception(error))
-                .Value;
+                .Value);
+        }
 
-            this.currentProfile = currentProfileMaybe
-                .Unwrap(new Profile())
-                .Combine(viewGroupsInGame);
-
-            var saveProfileResult = configurationService
-                .SaveProfile(this.currentProfile)
+        public void ApplyToGameOrThrowException(Profile profile)
+        {
+            gameEngineService.ApplyToGame(profile)
                 .OnFailure(error => throw new Exception(error));
+        }
 
-            this.gameEngineService.ApplyToGame(this.currentProfile);
+        public void SaveProfileOrThrowException(Profile profile)
+        {
+            configurationService.SaveProfile(profile)
+                .OnFailure(error => throw new Exception(error));
         }
     }
 }

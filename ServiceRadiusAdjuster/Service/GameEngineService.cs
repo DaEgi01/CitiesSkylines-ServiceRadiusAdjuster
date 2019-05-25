@@ -8,11 +8,11 @@ namespace ServiceRadiusAdjuster.Service
     public class GameEngineService
     {
         //TODO localization
+        //TODO find out ui category of CampusBuildingAI
+        //TODO find out ui category of VarsitySportsArenaAI
+        //TODO find out ui category of MuseumAI
+        //TODO find out ui category of LibraryAI
         private readonly string cantApplyValue = "Value can't be applied to the game.";
-
-        public GameEngineService()
-        {
-        }
 
         public Result<List<ViewGroup>> GetViewGroupsFromGame()
         {
