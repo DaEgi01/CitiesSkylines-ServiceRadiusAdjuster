@@ -480,27 +480,13 @@ namespace ServiceRadiusAdjuster.Service
 
             if (optionItem.ServiceType == ServiceType.Building)
             {
-                var applyToBuildingResult = ApplyToBuilding(optionItem);
-                if (applyToBuildingResult.IsSuccess)
-                {
-                    return Result.Ok();
-                }
-                else
-                {
-                    return Result.Fail(cantApplyValue + " " + applyToBuildingResult.Error);
-                }
+                ApplyToBuilding(optionItem);
+                return Result.Ok();
             }
             else if (optionItem.ServiceType == ServiceType.Transport)
             {
-                var applyToTransportResult = ApplyToTransport(optionItem);
-                if (applyToTransportResult.IsSuccess)
-                {
-                    return Result.Ok();
-                }
-                else
-                {
-                    return Result.Fail(cantApplyValue + " " + applyToTransportResult.Error);
-                }
+                ApplyToTransport(optionItem);
+                return Result.Ok();
             }
             else
             {
@@ -508,14 +494,17 @@ namespace ServiceRadiusAdjuster.Service
             }
         }
 
-        private Result ApplyToBuilding(OptionItem optionItem)
+        private void ApplyToBuilding(OptionItem optionItem)
         {
-            if (optionItem == null) throw new ArgumentNullException(nameof(optionItem));
+            if (optionItem == null)
+            {
+                throw new ArgumentNullException(nameof(optionItem));
+            }
 
             var buildingInfo = PrefabCollection<BuildingInfo>.FindLoaded(optionItem.SystemName);
             if (buildingInfo == null)
             {
-                return Result.Ok(); //Building not found but thats ok, because not all savegames have all buildings.
+                return;
             }
 
             var ai = buildingInfo.GetAI();
@@ -633,25 +622,23 @@ namespace ServiceRadiusAdjuster.Service
                     libraryAi.m_libraryRadius = optionItem.Radius.Value;
                     break;
                 default:
-                    return Result.Fail("Building AI was not recognized.");
+                    return; //Unknown AI is ok, just not supported.
             }
-
-            return Result.Ok();
         }
 
-        private Result ApplyToTransport(OptionItem optionItem)
+        private void ApplyToTransport(OptionItem optionItem)
         {
             var transportInfo = PrefabCollection<TransportInfo>.FindLoaded(optionItem.SystemName);
             if (transportInfo == null)
             {
-                return Result.Fail($"No TransportInfo named '{optionItem.SystemName}' was found.");
+                return;
             }
 
             var ai = (TransportLineAI)transportInfo.m_netInfo.GetAI();
             ai.m_publicTransportAccumulation = optionItem.Accumulation.Value;
             ai.m_publicTransportRadius = optionItem.Radius.Value;
 
-            return Result.Ok();
+            return;
         }
     }
 }
