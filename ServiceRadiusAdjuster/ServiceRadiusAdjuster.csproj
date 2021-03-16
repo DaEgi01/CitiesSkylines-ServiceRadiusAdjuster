@@ -64,7 +64,7 @@
     <Compile Include="Configuration\v3\ProfileDto.cs" />
     <Compile Include="Configuration\v3\ViewGroupDto.cs" />
     <Compile Include="DictionaryExtensions.cs" />
-    <Compile Include="Model\ModelFullTitle.cs" />
+    <Compile Include="Model\ModFullTitle.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="MaybeExtensions.cs" />
     <Compile Include="Model\OptionItemDefaultValues.cs" />
