@@ -159,6 +159,15 @@ namespace ServiceRadiusAdjuster.Service
                     case LibraryAI libraryAi:
                         educationOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), libraryAi.m_libraryAccumulation, libraryAi.m_libraryAccumulation, libraryAi.m_libraryRadius, libraryAi.m_libraryRadius));
                         break;
+                    case ChildcareAI childcareAI:
+                        healthCareOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), childcareAI.m_healthCareAccumulation, childcareAI.m_healthCareAccumulation, childcareAI.m_healthCareRadius, childcareAI.m_healthCareRadius));
+                        break;
+                    case EldercareAI eldercareAI:
+                        healthCareOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), eldercareAI.m_healthCareAccumulation, eldercareAI.m_healthCareAccumulation, eldercareAI.m_healthCareRadius, eldercareAI.m_healthCareRadius));
+                        break;
+                    case MarketAI marketAI:
+                        healthCareOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), marketAI.m_healthCareAccumulation, marketAI.m_healthCareAccumulation, marketAI.m_healthCareRadius, marketAI.m_healthCareRadius));
+                        break;
                 }
             }
 
@@ -422,6 +431,18 @@ namespace ServiceRadiusAdjuster.Service
                         return Result.Ok<Maybe<OptionItemDefaultValues>>(
                             new OptionItemDefaultValues(systemName, libraryAi.m_libraryAccumulation, libraryAi.m_libraryRadius)
                         );
+                    case ChildcareAI childcareAI:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, childcareAI.m_healthCareAccumulation, childcareAI.m_healthCareAccumulation)
+                        );
+                    case EldercareAI eldercareAI:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, eldercareAI.m_healthCareAccumulation, eldercareAI.m_healthCareAccumulation)
+                        );
+                    case MarketAI martketAI:
+                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                            new OptionItemDefaultValues(systemName, martketAI.m_healthCareAccumulation, martketAI.m_healthCareAccumulation)
+                        );
                     default:
                         return Result.Fail<Maybe<OptionItemDefaultValues>>(
                             $"Can't handle ai of type '{ai.GetType().FullName}'."
@@ -620,6 +641,18 @@ namespace ServiceRadiusAdjuster.Service
                 case LibraryAI libraryAi:
                     libraryAi.m_libraryAccumulation = optionItem.Accumulation.Value;
                     libraryAi.m_libraryRadius = optionItem.Radius.Value;
+                    break;
+                case ChildcareAI childcareAi:
+                    childcareAi.m_healthCareAccumulation = optionItem.Accumulation.Value;
+                    childcareAi.m_healthCareRadius = optionItem.Radius.Value;
+                    break;
+                case EldercareAI eldercareAi:
+                    eldercareAi.m_healthCareAccumulation = optionItem.Accumulation.Value;
+                    eldercareAi.m_healthCareRadius = optionItem.Radius.Value;
+                    break;
+                case MarketAI marketAi:
+                    marketAi.m_healthCareAccumulation = optionItem.Accumulation.Value;
+                    marketAi.m_healthCareRadius = optionItem.Radius.Value;
                     break;
                 default:
                     return; //Unknown AI is ok, just not supported.
