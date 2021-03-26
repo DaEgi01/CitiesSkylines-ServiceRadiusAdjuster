@@ -21,7 +21,7 @@ namespace ServiceRadiusAdjuster
         public string Name => "Service Radius Adjuster";
         public string SystemName => "ServiceRadiusAdjuster";
         public string Description => "Adjusts the effect radius of service buildings in your city.";
-        public string Version => "1.6.0";
+        public string Version => "1.8.0";
 
         public void OnEnabled()
         {

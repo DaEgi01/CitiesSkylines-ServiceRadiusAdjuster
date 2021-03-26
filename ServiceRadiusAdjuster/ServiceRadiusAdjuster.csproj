@@ -9,7 +9,7 @@
   <PropertyGroup>
     <AssemblyTitle>Service Radius Adjuster</AssemblyTitle>
     <TargetFramework>net35</TargetFramework>
-    <AssemblyVersion>1.5.*</AssemblyVersion>
+    <AssemblyVersion>1.8.*</AssemblyVersion>
     <Deterministic>false</Deterministic>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
   </PropertyGroup>
