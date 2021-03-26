@@ -6,8 +6,8 @@ namespace ServiceRadiusAdjuster.Model
     public class OptionItem : IEquatable<OptionItem>
     {
         //TODO localization
-        private readonly string couldNotParseAccumulationError = "Could not parse the new accumulation value. Please enter a valid number.";
-        private readonly string couldNotParseRadiusError = "Could not parse the new radius value. Please enter a valid number.";
+        private readonly string _couldNotParseAccumulationError = "Could not parse the new accumulation value. Please enter a valid number.";
+        private readonly string _couldNotParseRadiusError = "Could not parse the new radius value. Please enter a valid number.";
 
         public OptionItem(
             ServiceType serviceType,
@@ -19,14 +19,14 @@ namespace ServiceRadiusAdjuster.Model
             float? radiusDefault,
             bool ignore = false)
         {
-            this.ServiceType = serviceType;
-            this.SystemName = systemName;
-            this.DisplayName = displayName;
-            this.Accumulation = accumulation;
-            this.AccumulationDefault = accumulationDefault;
-            this.Radius = radius;
-            this.RadiusDefault = radiusDefault;
-            this.Ignore = ignore;
+            ServiceType = serviceType;
+            SystemName = systemName;
+            DisplayName = displayName;
+            Accumulation = accumulation;
+            AccumulationDefault = accumulationDefault;
+            Radius = radius;
+            RadiusDefault = radiusDefault;
+            Ignore = ignore;
         }
 
         //TODO primitive obsession
@@ -41,7 +41,7 @@ namespace ServiceRadiusAdjuster.Model
 
         public void SetAccumulation(int accumulation)
         {
-            this.Accumulation = accumulation;
+            Accumulation = accumulation;
         }
 
         public Result SetAccumulation(string accumulationString)
@@ -49,18 +49,18 @@ namespace ServiceRadiusAdjuster.Model
             var accumulationValid = int.TryParse(accumulationString, out int accumulation);
             if (accumulationValid)
             {
-                this.Accumulation = accumulation;
+                Accumulation = accumulation;
                 return Result.Ok();
             }
             else
             {
-                return Result.Fail(couldNotParseAccumulationError);
+                return Result.Fail(_couldNotParseAccumulationError);
             }
         }
 
         public void SetRadius(float radius)
         {
-            this.Radius = radius;
+            Radius = radius;
         }
 
         public Result SetRadius(string radiusString)
@@ -68,18 +68,18 @@ namespace ServiceRadiusAdjuster.Model
             var radiusValid = float.TryParse(radiusString, out float radius);
             if (radiusValid)
             {
-                this.Radius = radius;
+                Radius = radius;
                 return Result.Ok();
             }
             else
             {
-                return Result.Fail(couldNotParseRadiusError);
+                return Result.Fail(_couldNotParseRadiusError);
             }
         }
 
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as OptionItem);
+            return Equals(obj as OptionItem);
         }
 
         public bool Equals(OptionItem other)
@@ -94,27 +94,27 @@ namespace ServiceRadiusAdjuster.Model
                 return true;
             }
 
-            return this.ServiceType == other.ServiceType &&
-                this.SystemName == other.SystemName &&
-                this.DisplayName == other.DisplayName &&
-                this.Accumulation == other.Accumulation &&
-                this.AccumulationDefault == other.AccumulationDefault &&
-                this.Radius == other.Radius &&
-                this.RadiusDefault == other.RadiusDefault &&
-                this.Ignore == other.Ignore;
+            return ServiceType == other.ServiceType &&
+                SystemName == other.SystemName &&
+                DisplayName == other.DisplayName &&
+                Accumulation == other.Accumulation &&
+                AccumulationDefault == other.AccumulationDefault &&
+                Radius == other.Radius &&
+                RadiusDefault == other.RadiusDefault &&
+                Ignore == other.Ignore;
         }
 
         public override int GetHashCode()
         {
             var hashCode = -173902468;
-            hashCode = hashCode * -1521134295 + EqualityComparer<ServiceType>.Default.GetHashCode(this.ServiceType);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.SystemName);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.DisplayName);
-            hashCode = hashCode * -1521134295 + EqualityComparer<int?>.Default.GetHashCode(this.Accumulation);
-            hashCode = hashCode * -1521134295 + EqualityComparer<int?>.Default.GetHashCode(this.AccumulationDefault);
-            hashCode = hashCode * -1521134295 + EqualityComparer<float?>.Default.GetHashCode(this.Radius);
-            hashCode = hashCode * -1521134295 + EqualityComparer<float?>.Default.GetHashCode(this.RadiusDefault);
-            hashCode = hashCode * -1521134295 + EqualityComparer<bool>.Default.GetHashCode(this.Ignore);
+            hashCode = hashCode * -1521134295 + EqualityComparer<ServiceType>.Default.GetHashCode(ServiceType);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SystemName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(DisplayName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int?>.Default.GetHashCode(Accumulation);
+            hashCode = hashCode * -1521134295 + EqualityComparer<int?>.Default.GetHashCode(AccumulationDefault);
+            hashCode = hashCode * -1521134295 + EqualityComparer<float?>.Default.GetHashCode(Radius);
+            hashCode = hashCode * -1521134295 + EqualityComparer<float?>.Default.GetHashCode(RadiusDefault);
+            hashCode = hashCode * -1521134295 + EqualityComparer<bool>.Default.GetHashCode(Ignore);
             return hashCode;
         }
 

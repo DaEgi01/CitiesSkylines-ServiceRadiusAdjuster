@@ -12,11 +12,11 @@ namespace ServiceRadiusAdjuster
 {
     public class Mod : LoadingExtensionBase, IUserMod
     {
-        private ModFullTitle modFullTitle;
-        private GameEngineService gameEngineService;
-        private DirectoryInfo configFilesDirectory;
-        private FileInfo currentConfigFile;
-        private IConfigurationService configurationService;
+        private ModFullTitle _modFullTitle;
+        private GameEngineService _gameEngineService;
+        private DirectoryInfo _configFilesDirectory;
+        private FileInfo _currentConfigFile;
+        private IConfigurationService _configurationService;
 
         public string Name => "Service Radius Adjuster";
         public string SystemName => "ServiceRadiusAdjuster";
@@ -45,7 +45,7 @@ namespace ServiceRadiusAdjuster
 
         public void OnSettingsUI(UIHelperBase uIHelperBase)
         {
-            var mainGroupUiHelper = uIHelperBase.AddGroup(modFullTitle);
+            var mainGroupUiHelper = uIHelperBase.AddGroup(_modFullTitle);
             var mainGroupContentPanel = (mainGroupUiHelper as UIHelper).self as UIPanel;
             mainGroupContentPanel.backgroundSprite = string.Empty;
 
@@ -81,7 +81,7 @@ namespace ServiceRadiusAdjuster
             var manualEditGroup = mainGroupUiHelper.AddGroup("Manually edit");
             manualEditGroup.AddButton("Open file", () =>
             {
-                System.Diagnostics.Process.Start(currentConfigFile.FullName);
+                System.Diagnostics.Process.Start(_currentConfigFile.FullName);
             });
             manualEditGroup.AddButton("Apply", () =>
             {
@@ -92,20 +92,20 @@ namespace ServiceRadiusAdjuster
 
         public void InitializeDependencies()
         {
-            modFullTitle = new ModFullTitle(Name, Version);
-            gameEngineService = new GameEngineService();
-            configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
-            currentConfigFile = new FileInfo(Path.Combine(configFilesDirectory.FullName, "ServiceRadiusAdjuster_v3.xml"));
-            configurationService = new ConfigurationService(currentConfigFile);
+            _modFullTitle = new ModFullTitle(Name, Version);
+            _gameEngineService = new GameEngineService();
+            _configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
+            _currentConfigFile = new FileInfo(Path.Combine(_configFilesDirectory.FullName, "ServiceRadiusAdjuster_v3.xml"));
+            _configurationService = new ConfigurationService(_currentConfigFile);
         }
 
         public void UninitializeDependencies()
         {
-            modFullTitle = null;
-            gameEngineService = null;
-            configFilesDirectory = null;
-            currentConfigFile = null;
-            configurationService = null;
+            _modFullTitle = null;
+            _gameEngineService = null;
+            _configFilesDirectory = null;
+            _currentConfigFile = null;
+            _configurationService = null;
         }
 
         public void InitializeMod()
@@ -118,7 +118,7 @@ namespace ServiceRadiusAdjuster
 
         public Profile LoadProfileOrDefaultOrThrowException()
         {
-            return configurationService
+            return _configurationService
                 .LoadProfile()
                 .OnFailure(error => throw new Exception(error))
                 .Value
@@ -127,7 +127,7 @@ namespace ServiceRadiusAdjuster
 
         public Profile UpdateProfileWithNewItemsOrThrowException(Profile profile)
         {
-            return profile.Combine(gameEngineService
+            return profile.Combine(_gameEngineService
                 .GetViewGroupsFromGame()
                 .OnFailure(error => throw new Exception(error))
                 .Value);
@@ -135,13 +135,13 @@ namespace ServiceRadiusAdjuster
 
         public void ApplyToGameOrThrowException(Profile profile)
         {
-            gameEngineService.ApplyToGame(profile)
+            _gameEngineService.ApplyToGame(profile)
                 .OnFailure(error => throw new Exception(error));
         }
 
         public void SaveProfileOrThrowException(Profile profile)
         {
-            configurationService.SaveProfile(profile)
+            _configurationService.SaveProfile(profile)
                 .OnFailure(error => throw new Exception(error));
         }
     }

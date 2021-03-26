@@ -6,9 +6,9 @@ namespace ServiceRadiusAdjuster.Model
 {
     public class ViewGroup
     {
-        private readonly string name;
-        private readonly int order;
-        private readonly List<OptionItem> optionItems;
+        private readonly string _name;
+        private readonly int _order;
+        private readonly List<OptionItem> _optionItems;
 
         public ViewGroup(string name, int order) 
             : this(name, order, new List<OptionItem>())
@@ -17,24 +17,24 @@ namespace ServiceRadiusAdjuster.Model
 
         public ViewGroup(string name, int order, List<OptionItem> optionItems)
         {
-            this.name = name ?? throw new ArgumentNullException(nameof(name));
-            this.order = order;
-            this.optionItems = optionItems ?? throw new ArgumentException(nameof(optionItems));
-            this.OptionItems = new ReadOnlyCollection<OptionItem>(optionItems);
+            _name = name ?? throw new ArgumentNullException(nameof(name));
+            _order = order;
+            _optionItems = optionItems ?? throw new ArgumentException(nameof(optionItems));
+            OptionItems = new ReadOnlyCollection<OptionItem>(optionItems);
         }
 
-        public string Name => name;
-        public int Order => order;
+        public string Name => _name;
+        public int Order => _order;
         public ReadOnlyCollection<OptionItem> OptionItems { get; }
 
         public void Add(OptionItem optionItem)
         {
-            this.optionItems.Add(optionItem);
+            _optionItems.Add(optionItem);
         }
 
         public void AddRange(IEnumerable<OptionItem> optionItems)
         {
-            this.optionItems.AddRange(optionItems);
+            _optionItems.AddRange(optionItems);
         }
     }
 }

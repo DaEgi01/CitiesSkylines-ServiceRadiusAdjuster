@@ -4,9 +4,9 @@
     {
         public OptionItemDefaultValues(string systemName, int? accumulationDefault, float radiusDefault)
         {
-            this.SystemName = systemName;
-            this.AccumulationDefault = accumulationDefault;
-            this.RadiusDefault = radiusDefault;
+            SystemName = systemName;
+            AccumulationDefault = accumulationDefault;
+            RadiusDefault = radiusDefault;
         }
 
         public string SystemName { get; }

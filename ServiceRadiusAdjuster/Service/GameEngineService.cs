@@ -12,7 +12,7 @@ namespace ServiceRadiusAdjuster.Service
         //TODO find out ui category of VarsitySportsArenaAI
         //TODO find out ui category of MuseumAI
         //TODO find out ui category of LibraryAI
-        private readonly string cantApplyValue = "Value can't be applied to the game.";
+        private readonly string _cantApplyValue = "Value can't be applied to the game.";
 
         public Result<List<ViewGroup>> GetViewGroupsFromGame()
         {
@@ -511,7 +511,7 @@ namespace ServiceRadiusAdjuster.Service
             }
             else
             {
-                return Result.Fail($"{cantApplyValue} Service type {optionItem.ServiceType} is unknown.");
+                return Result.Fail($"{_cantApplyValue} Service type {optionItem.ServiceType} is unknown.");
             }
         }
 

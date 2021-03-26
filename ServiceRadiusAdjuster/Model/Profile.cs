@@ -7,7 +7,7 @@ namespace ServiceRadiusAdjuster.Model
 {
     public class Profile
     {
-        private readonly List<ViewGroup> viewGroups;
+        private readonly List<ViewGroup> _viewGroups;
 
         public Profile()
             : this(new List<ViewGroup>())
@@ -16,8 +16,8 @@ namespace ServiceRadiusAdjuster.Model
 
         public Profile(List<ViewGroup> viewGroups)
         {
-            this.viewGroups = viewGroups ?? throw new ArgumentNullException(nameof(viewGroups));
-            this.ViewGroups = new ReadOnlyCollection<ViewGroup>(this.viewGroups);
+            _viewGroups = viewGroups ?? throw new ArgumentNullException(nameof(viewGroups));
+            ViewGroups = new ReadOnlyCollection<ViewGroup>(_viewGroups);
         }
 
         public ReadOnlyCollection<ViewGroup> ViewGroups { get; }
@@ -28,7 +28,7 @@ namespace ServiceRadiusAdjuster.Model
         public Profile Combine(IEnumerable<ViewGroup> newViewGroups)
         {
             var combinedViewGroups = new List<ViewGroup>();
-            combinedViewGroups.AddRange(this.viewGroups);
+            combinedViewGroups.AddRange(_viewGroups);
 
             var combinedOptionItems = combinedViewGroups.SelectMany(svg => svg.OptionItems);
             var newOptionItems = newViewGroups.SelectMany(cvg => cvg.OptionItems);
@@ -59,7 +59,7 @@ namespace ServiceRadiusAdjuster.Model
 
         public void ApplyOldValues(Dictionary<string, float> oldValues)
         {
-            foreach (var viewGroup in this.ViewGroups)
+            foreach (var viewGroup in ViewGroups)
             {
                 foreach (var optionItem in viewGroup.OptionItems)
                 {
@@ -78,7 +78,7 @@ namespace ServiceRadiusAdjuster.Model
                 return;
             }
 
-            foreach (var viewGroup in this.ViewGroups)
+            foreach (var viewGroup in ViewGroups)
             {
                 foreach (var optionItem in viewGroup.OptionItems)
                 {

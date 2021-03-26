@@ -8,27 +8,27 @@ namespace ServiceRadiusAdjuster.Configuration.v3
 {
     public class ConfigurationService : IConfigurationService
     {
-        private readonly XmlSerializer profileSerializer = new XmlSerializer(typeof(ProfileDto));
-        private readonly FileInfo configFileInfo;
+        private readonly XmlSerializer _profileSerializer = new XmlSerializer(typeof(ProfileDto));
+        private readonly FileInfo _configFileInfo;
 
         public ConfigurationService(FileInfo configFileInfo)
         {
-            this.configFileInfo = configFileInfo ?? throw new ArgumentNullException(nameof(configFileInfo));
+            _configFileInfo = configFileInfo ?? throw new ArgumentNullException(nameof(configFileInfo));
         }
 
         public string Version => "v3";
 
         public Result<Maybe<Profile>> LoadProfile()
         {
-            if (!File.Exists(configFileInfo.FullName)) //don't use configFile.Exists here, since that will bug if the file is created on the first run.
+            if (!File.Exists(_configFileInfo.FullName)) //don't use configFile.Exists here, since that will bug if the file is created on the first run.
             {
                 return Result.Ok(Maybe<Profile>.None);
             }
 
-            using (var streamReader = new StreamReader(configFileInfo.FullName))
+            using (var streamReader = new StreamReader(_configFileInfo.FullName))
             {
-                var profileDto = profileSerializer.Deserialize(streamReader) as ProfileDto;
-                if (profileDto.Version != this.Version)
+                var profileDto = _profileSerializer.Deserialize(streamReader) as ProfileDto;
+                if (profileDto.Version != Version)
                 {
                     return Result.Fail<Maybe<Profile>>("Profile can't be created from this file, since the versions do not match.");
                 }
@@ -103,15 +103,15 @@ namespace ServiceRadiusAdjuster.Configuration.v3
 
             var profileDto = new ProfileDto()
             {
-                Version = this.Version,
+                Version = Version,
                 ViewGroupDtos = viewGroupDtos
             };
 
-            using (var streamWriter = new StreamWriter(configFileInfo.FullName, false))
+            using (var streamWriter = new StreamWriter(_configFileInfo.FullName, false))
             {
                 try
                 {
-                    profileSerializer.Serialize(streamWriter, profileDto);
+                    _profileSerializer.Serialize(streamWriter, profileDto);
                 }
                 catch (Exception ex)
                 {
