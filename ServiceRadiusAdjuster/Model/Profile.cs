@@ -58,20 +58,6 @@ namespace ServiceRadiusAdjuster.Model
             return new Profile(combinedViewGroups);
         }
 
-        public void ApplyOldValues(Dictionary<string, float> oldValues)
-        {
-            foreach (var viewGroup in ViewGroups)
-            {
-                foreach (var optionItem in viewGroup.OptionItems)
-                {
-                    if (oldValues.TryGetValue(optionItem.SystemName, out float radius))
-                    {
-                        optionItem.SetRadius(radius);
-                    }
-                }
-            }
-        }
-
         public Result<string, Profile> BatchEdit(float? accumulationMultiplier, float? radiusMultiplier)
         {
             if (!accumulationMultiplier.HasValue && !radiusMultiplier.HasValue)
