@@ -1,10 +1,11 @@
-﻿using ServiceRadiusAdjuster.Model;
+﻿using ServiceRadiusAdjuster.FunctionalCore;
+using ServiceRadiusAdjuster.Model;
 
 namespace ServiceRadiusAdjuster.Configuration
 {
     public interface IConfigurationService : IConfigFileVersion
     {
-        Result<Maybe<Profile>> LoadProfile();
-        Result SaveProfile(Profile profile);
+        Result<string, Profile?> LoadProfile();
+        Result<string, Profile> SaveProfile(Profile profile);
     }
 }

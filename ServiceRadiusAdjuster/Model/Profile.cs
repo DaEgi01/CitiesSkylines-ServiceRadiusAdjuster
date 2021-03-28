@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServiceRadiusAdjuster.FunctionalCore;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -71,11 +72,11 @@ namespace ServiceRadiusAdjuster.Model
             }
         }
 
-        public void BatchEdit(float? accumulationMultiplier, float? radiusMultiplier)
+        public Result<string, Profile> BatchEdit(float? accumulationMultiplier, float? radiusMultiplier)
         {
             if (!accumulationMultiplier.HasValue && !radiusMultiplier.HasValue)
             {
-                return;
+                Result<string>.Error("Please enter a accumulation or radius multiplier.");
             }
 
             foreach (var viewGroup in ViewGroups)
@@ -93,6 +94,8 @@ namespace ServiceRadiusAdjuster.Model
                     }
                 }
             }
+
+            return Result<string, Profile>.Ok(this);
         }
     }
 }

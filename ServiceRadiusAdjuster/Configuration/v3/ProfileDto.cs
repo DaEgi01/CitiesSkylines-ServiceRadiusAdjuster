@@ -6,8 +6,9 @@ namespace ServiceRadiusAdjuster.Configuration.v3
     [XmlRoot("Profile")]
     public class ProfileDto
     {
-        public string Version { get; set; }
+        public string? Version { get; set; }
+
         [XmlElement("ViewGroups")]
-        public List<ViewGroupDto> ViewGroupDtos { get; set; }
+        public List<ViewGroupDto>? ViewGroupDtos { get; set; }
     }
 }

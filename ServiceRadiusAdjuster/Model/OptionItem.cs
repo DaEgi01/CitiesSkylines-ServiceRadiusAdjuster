@@ -1,3 +1,4 @@
+using ServiceRadiusAdjuster.FunctionalCore;
 using System;
 using System.Collections.Generic;
 
@@ -6,8 +7,8 @@ namespace ServiceRadiusAdjuster.Model
     public class OptionItem : IEquatable<OptionItem>
     {
         //TODO localization
-        private readonly string _couldNotParseAccumulationError = "Could not parse the new accumulation value. Please enter a valid number.";
-        private readonly string _couldNotParseRadiusError = "Could not parse the new radius value. Please enter a valid number.";
+        private static readonly string _couldNotParseAccumulationError = "Could not parse the new accumulation value. Please enter a valid number.";
+        private static readonly string _couldNotParseRadiusError = "Could not parse the new radius value. Please enter a valid number.";
 
         public OptionItem(
             ServiceType serviceType,
@@ -44,17 +45,17 @@ namespace ServiceRadiusAdjuster.Model
             Accumulation = accumulation;
         }
 
-        public Result SetAccumulation(string accumulationString)
+        public Result<string, int> SetAccumulation(string accumulationString)
         {
             var accumulationValid = int.TryParse(accumulationString, out int accumulation);
             if (accumulationValid)
             {
                 Accumulation = accumulation;
-                return Result.Ok();
+                return Result<string, int>.Ok(accumulation);
             }
             else
             {
-                return Result.Fail(_couldNotParseAccumulationError);
+                return Result<string, int>.Error(_couldNotParseAccumulationError);
             }
         }
 
@@ -63,17 +64,17 @@ namespace ServiceRadiusAdjuster.Model
             Radius = radius;
         }
 
-        public Result SetRadius(string radiusString)
+        public Result<string> SetRadius(string radiusString)
         {
             var radiusValid = float.TryParse(radiusString, out float radius);
             if (radiusValid)
             {
                 Radius = radius;
-                return Result.Ok();
+                return Result<string>.Ok();
             }
             else
             {
-                return Result.Fail(_couldNotParseRadiusError);
+                return Result<string>.Error(_couldNotParseRadiusError);
             }
         }
 
@@ -82,9 +83,9 @@ namespace ServiceRadiusAdjuster.Model
             return Equals(obj as OptionItem);
         }
 
-        public bool Equals(OptionItem other)
+        public bool Equals(OptionItem? other)
         {
-            if (other == null)
+            if (other is null)
             {
                 return false;
             }

@@ -1,4 +1,5 @@
-﻿using ServiceRadiusAdjuster.Model;
+﻿using ServiceRadiusAdjuster.FunctionalCore;
+using ServiceRadiusAdjuster.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,62 +11,74 @@ namespace ServiceRadiusAdjuster.Configuration.v3
     {
         private readonly XmlSerializer _profileSerializer = new XmlSerializer(typeof(ProfileDto));
         private readonly FileInfo _configFileInfo;
+        private readonly ErrorMessageBuilder _errorMessageBuilder;
 
-        public ConfigurationService(FileInfo configFileInfo)
+        public ConfigurationService(FileInfo configFileInfo, ErrorMessageBuilder errorMessageBuilder)
         {
             _configFileInfo = configFileInfo ?? throw new ArgumentNullException(nameof(configFileInfo));
+            _errorMessageBuilder = errorMessageBuilder ?? throw new ArgumentNullException(nameof(errorMessageBuilder));
         }
 
         public string Version => "v3";
 
-        public Result<Maybe<Profile>> LoadProfile()
+        public Result<string, Profile?> LoadProfile()
         {
-            if (!File.Exists(_configFileInfo.FullName)) //don't use configFile.Exists here, since that will bug if the file is created on the first run.
+            try
             {
-                return Result.Ok(Maybe<Profile>.None);
-            }
-
-            using (var streamReader = new StreamReader(_configFileInfo.FullName))
-            {
-                var profileDto = _profileSerializer.Deserialize(streamReader) as ProfileDto;
-                if (profileDto.Version != Version)
+                if (!File.Exists(_configFileInfo.FullName)) //don't use configFile.Exists here, since that will bug if the file is created on the first run.
                 {
-                    return Result.Fail<Maybe<Profile>>("Profile can't be created from this file, since the versions do not match.");
+                    return Result<string, Profile?>.Ok(null);
                 }
 
-                var viewGroups = new List<ViewGroup>();
-                foreach (var viewGroupsDto in profileDto.ViewGroupDtos)
+                using (var streamReader = new StreamReader(_configFileInfo.FullName))
                 {
-                    var optionItems = new List<OptionItem>();
-                    foreach (var optionItemDto in viewGroupsDto.OptionItemDtos)
+                    var profileDto = _profileSerializer.Deserialize(streamReader) as ProfileDto;
+                    if (profileDto is null)
                     {
-                        optionItems.Add(
-                            new OptionItem(
-                                ServiceType.FromName(optionItemDto.Type),
-                                optionItemDto.SystemName,
-                                optionItemDto.DisplayName,
-                                optionItemDto.Accumulation,
-                                optionItemDto.AccumulationDefault,
-                                optionItemDto.Radius,
-                                optionItemDto.RadiusDefault,
-                                optionItemDto.Ignore
-                            )
-                        );
+                        return Result<string, Profile?>.Error(_errorMessageBuilder.Build(nameof(LoadProfile), "Profile could not be created, profileDto is null."));
                     }
 
-                    var viewGroup = new ViewGroup(viewGroupsDto.Name, viewGroupsDto.Order, optionItems);
-                    viewGroups.Add(viewGroup);
+                    if (profileDto.Version != Version)
+                    {
+                        return Result<string, Profile?>.Error(_errorMessageBuilder.Build(nameof(LoadProfile), "Profile could not be created since the versions do not match."));
+                    }
+
+                    var viewGroups = new List<ViewGroup>();
+                    foreach (var viewGroupsDto in profileDto.ViewGroupDtos)
+                    {
+                        var optionItems = new List<OptionItem>();
+                        foreach (var optionItemDto in viewGroupsDto.OptionItemDtos)
+                        {
+                            optionItems.Add(
+                                new OptionItem(
+                                    ServiceType.FromName(optionItemDto.Type),
+                                    optionItemDto.SystemName,
+                                    optionItemDto.DisplayName,
+                                    optionItemDto.Accumulation,
+                                    optionItemDto.AccumulationDefault,
+                                    optionItemDto.Radius,
+                                    optionItemDto.RadiusDefault,
+                                    optionItemDto.Ignore.GetValueOrDefault(false)
+                                )
+                            );
+                        }
+
+                        var viewGroup = new ViewGroup(viewGroupsDto.Name, viewGroupsDto.Order, optionItems);
+                        viewGroups.Add(viewGroup);
+                    }
+
+                    return Result<string, Profile?>.Ok(new Profile(viewGroups));
                 }
-
-                var profile = new Profile(viewGroups);
-
-                return Result.Ok<Maybe<Profile>>(profile);
+            }
+            catch (Exception ex)
+            {
+                return Result<string, Profile?>.Error(_errorMessageBuilder.Build(nameof(LoadProfile), ex));
             }
         }
 
-        public Result SaveProfile(Profile profile)
+        public Result<string, Profile> SaveProfile(Profile profile)
         {
-            if (profile == null)
+            if (profile is null)
             {
                 throw new ArgumentNullException(nameof(profile));
             }
@@ -107,19 +120,18 @@ namespace ServiceRadiusAdjuster.Configuration.v3
                 ViewGroupDtos = viewGroupDtos
             };
 
-            using (var streamWriter = new StreamWriter(_configFileInfo.FullName, false))
+            try
             {
-                try
+                using (var streamWriter = new StreamWriter(_configFileInfo.FullName, false))
                 {
                     _profileSerializer.Serialize(streamWriter, profileDto);
-                }
-                catch (Exception ex)
-                {
-                    return Result.Fail($"Profile can't be saved. {ex.Message}");
+                    return Result<string, Profile>.Ok(profile);
                 }
             }
-
-            return Result.Ok();
+            catch (Exception ex)
+            {
+                return Result<string, Profile>.Error(_errorMessageBuilder.Build(nameof(SaveProfile), ex));
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using ColossalFramework.UI;
 using ICities;
 using ServiceRadiusAdjuster.Configuration;
 using ServiceRadiusAdjuster.Configuration.v3;
+using ServiceRadiusAdjuster.FunctionalCore;
 using ServiceRadiusAdjuster.Model;
 using ServiceRadiusAdjuster.Service;
 using System;
@@ -12,11 +13,14 @@ namespace ServiceRadiusAdjuster
 {
     public class Mod : LoadingExtensionBase, IUserMod
     {
-        private ModFullTitle _modFullTitle;
-        private GameEngineService _gameEngineService;
-        private DirectoryInfo _configFilesDirectory;
-        private FileInfo _currentConfigFile;
-        private IConfigurationService _configurationService;
+        private readonly OnTextChanged _doNothingOnTextChanged = (s) => { };
+
+        private ErrorMessageBuilder? _errorMessageBuilder;
+        private ModFullTitle? _modFullTitle;
+        private GameEngineService? _gameEngineService;
+        private DirectoryInfo? _configFilesDirectory;
+        private FileInfo? _currentConfigFile;
+        private IConfigurationService? _configurationService;
 
         public string Name => "Service Radius Adjuster";
         public string SystemName => "ServiceRadiusAdjuster";
@@ -51,28 +55,29 @@ namespace ServiceRadiusAdjuster
 
             var batchEditGroup = mainGroupUiHelper.AddGroup("Batch edit");
 
-            var accumulationMultiplier = (UITextField)batchEditGroup.AddTextfield("Accumulation multiplier", string.Empty, (s) => { });
+            var accumulationMultiplier = (UITextField)batchEditGroup.AddTextfield("Accumulation multiplier", string.Empty, _doNothingOnTextChanged);
             accumulationMultiplier.numericalOnly = true;
             accumulationMultiplier.allowFloats = true;
 
-            var radiusMultiplier = (UITextField)batchEditGroup.AddTextfield("Radius multiplier", string.Empty, (s) => { });
+            var radiusMultiplier = (UITextField)batchEditGroup.AddTextfield("Radius multiplier", string.Empty, _doNothingOnTextChanged);
             radiusMultiplier.numericalOnly = true;
             radiusMultiplier.allowFloats = true;
 
             batchEditGroup.AddButton("Apply", () =>
             {
                 float? accumulationMultiplierValue = string.IsNullOrEmpty(accumulationMultiplier.text)
-                    ? (float?)null
+                    ? null
                     : float.Parse(accumulationMultiplier.text);
 
                 float? radiusMultiplierValue = string.IsNullOrEmpty(radiusMultiplier.text)
-                    ? (float?)null
+                    ? null
                     : float.Parse(radiusMultiplier.text);
 
-                var profile = LoadProfileOrDefaultOrThrowException();
-                profile.BatchEdit(accumulationMultiplierValue, radiusMultiplierValue);
-                ApplyToGameOrThrowException(profile);
-                SaveProfileOrThrowException(profile);
+                LoadProfileOrDefault()
+                    .SelectMany(p => p.BatchEdit(accumulationMultiplierValue, radiusMultiplierValue))
+                    .SelectMany(p => _gameEngineService.ApplyToGame(p))
+                    .SelectMany(p => _configurationService.SaveProfile(p))
+                    .OnError(e => throw new Exception(e));
 
                 accumulationMultiplier.text = string.Empty;
                 radiusMultiplier.text = string.Empty;
@@ -85,22 +90,25 @@ namespace ServiceRadiusAdjuster
             });
             manualEditGroup.AddButton("Apply", () =>
             {
-                var profile = LoadProfileOrDefaultOrThrowException();
-                ApplyToGameOrThrowException(profile);
+                LoadProfileOrDefault()
+                    .SelectMany(p => _gameEngineService.ApplyToGame(p))
+                    .OnError(e => new Exception(e));
             });
         }
 
         public void InitializeDependencies()
         {
+            _errorMessageBuilder = new ErrorMessageBuilder();
             _modFullTitle = new ModFullTitle(Name, Version);
-            _gameEngineService = new GameEngineService();
+            _gameEngineService = new GameEngineService(_errorMessageBuilder);
             _configFilesDirectory = new DirectoryInfo(DataLocation.localApplicationData);
             _currentConfigFile = new FileInfo(Path.Combine(_configFilesDirectory.FullName, "ServiceRadiusAdjuster_v3.xml"));
-            _configurationService = new ConfigurationService(_currentConfigFile);
+            _configurationService = new ConfigurationService(_currentConfigFile, _errorMessageBuilder);
         }
 
         public void UninitializeDependencies()
         {
+            _errorMessageBuilder = null;
             _modFullTitle = null;
             _gameEngineService = null;
             _configFilesDirectory = null;
@@ -110,39 +118,18 @@ namespace ServiceRadiusAdjuster
 
         public void InitializeMod()
         {
-            var existingOrNewProfile = LoadProfileOrDefaultOrThrowException();
-            var updatedProfile = UpdateProfileWithNewItemsOrThrowException(existingOrNewProfile);
-            ApplyToGameOrThrowException(updatedProfile);
-            SaveProfileOrThrowException(updatedProfile);
+            LoadProfileOrDefault()
+                .SelectMany(p => _gameEngineService.GetViewGroupsFromGame().Select(vg => p.Combine(vg)))
+                .SelectMany(p => _gameEngineService.ApplyToGame(p))
+                .SelectMany(p => _configurationService.SaveProfile(p))
+                .OnError(e => throw new Exception(e));
         }
 
-        public Profile LoadProfileOrDefaultOrThrowException()
+        public Result<string, Profile> LoadProfileOrDefault()
         {
             return _configurationService
                 .LoadProfile()
-                .OnFailure(error => throw new Exception(error))
-                .Value
-                .Unwrap(new Profile());
-        }
-
-        public Profile UpdateProfileWithNewItemsOrThrowException(Profile profile)
-        {
-            return profile.Combine(_gameEngineService
-                .GetViewGroupsFromGame()
-                .OnFailure(error => throw new Exception(error))
-                .Value);
-        }
-
-        public void ApplyToGameOrThrowException(Profile profile)
-        {
-            _gameEngineService.ApplyToGame(profile)
-                .OnFailure(error => throw new Exception(error));
-        }
-
-        public void SaveProfileOrThrowException(Profile profile)
-        {
-            _configurationService.SaveProfile(profile)
-                .OnFailure(error => throw new Exception(error));
+                .Select(p => p ?? new Profile());
         }
     }
 }

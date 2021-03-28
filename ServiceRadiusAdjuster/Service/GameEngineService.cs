@@ -1,4 +1,5 @@
-﻿using ServiceRadiusAdjuster.Model;
+﻿using ServiceRadiusAdjuster.FunctionalCore;
+using ServiceRadiusAdjuster.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,14 @@ namespace ServiceRadiusAdjuster.Service
         //TODO find out ui category of MuseumAI
         //TODO find out ui category of LibraryAI
         private readonly string _cantApplyValue = "Value can't be applied to the game.";
+        private readonly ErrorMessageBuilder _errorMessageBuilder;
 
-        public Result<List<ViewGroup>> GetViewGroupsFromGame()
+        public GameEngineService(ErrorMessageBuilder errorMessageBuilder)
+        {
+            _errorMessageBuilder = errorMessageBuilder ?? throw new ArgumentNullException(nameof(errorMessageBuilder));
+        }
+
+        public Result<string, List<ViewGroup>> GetViewGroupsFromGame()
         {
             var result = new List<ViewGroup>();
 
@@ -231,7 +238,7 @@ namespace ServiceRadiusAdjuster.Service
                 new ViewGroup("Monuments", 2300, monumentOptionItems)
             };
 
-            return Result.Ok(viewGroups);
+            return Result<string, List<ViewGroup>>.Ok(viewGroups);
 
             List<OptionItem> GetAppropriateParkList(string category)
             {
@@ -298,154 +305,154 @@ namespace ServiceRadiusAdjuster.Service
             }
         }
 
-        public Result<Maybe<OptionItemDefaultValues>> GetDefaultValues(ServiceType serviceType, string systemName)
+        public Result<string, OptionItemDefaultValues?> GetDefaultValues(ServiceType serviceType, string systemName)
         {
             if (serviceType == ServiceType.Building)
             {
                 var bi = PrefabCollection<BuildingInfo>.FindLoaded(systemName);
                 if (bi == null)
                 {
-                    return Result.Ok(Maybe<OptionItemDefaultValues>.None);
+                    return Result<string, OptionItemDefaultValues?>.Ok(null);
                 }
 
                 var ai = bi.GetAI();
                 switch (ai)
                 {
                     case MedicalCenterAI medicalCenterAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, medicalCenterAi.m_healthCareAccumulation, medicalCenterAi.m_healthCareRadius)
                         );
                     case SpaceElevatorAI spaceElevatorAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, spaceElevatorAi.m_publicTransportAccumulation, spaceElevatorAi.m_publicTransportRadius)
                         );
                     case HadronColliderAI hadronColliderAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, null, hadronColliderAi.m_educationRadius)
                         );
                     case EdenProjectAI edenProjectAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, edenProjectAi.m_entertainmentAccumulation, edenProjectAi.m_entertainmentRadius)
                         );
                     case UltimateRecyclingPlantAI ultimateRecyclingPlantAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, null, ultimateRecyclingPlantAi.m_collectRadius)
                         );
                     case MaintenanceDepotAI maintenanceDepotAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, null, maintenanceDepotAi.m_maintenanceRadius)
                         );
                     case SnowDumpAI snowDumpAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, null, snowDumpAi.m_collectRadius)
                         );
                     case WaterFacilityAI waterFacilityAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, null, waterFacilityAi.m_vehicleRadius)
                         );
                     case LandfillSiteAI landfillSiteAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, null, landfillSiteAi.m_collectRadius)
                         );
                     case WaterCleanerAI waterCleanerAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, waterCleanerAi.m_cleaningRate, waterCleanerAi.m_maxWaterDistance)
                         );
                     case HospitalAI hospitalAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, hospitalAi.m_healthCareAccumulation, hospitalAi.m_healthCareRadius)
                         );
                     case SaunaAI saunaAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, saunaAi.m_healthCareAccumulation, saunaAi.m_healthCareRadius)
                         );
                     case CemeteryAI cemeteryAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, cemeteryAi.m_deathCareAccumulation, cemeteryAi.m_deathCareRadius)
                         );
                     case FireStationAI fireStationAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, fireStationAi.m_fireDepartmentAccumulation, fireStationAi.m_fireDepartmentRadius)
                         );
                     case FirewatchTowerAI firewatchTowerAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, null, firewatchTowerAi.m_firewatchRadius)
                         );
                     case ShelterAI shelterAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, shelterAi.m_disasterCoverageAccumulation, shelterAi.m_evacuationRange)
                         );
                     case RadioMastAI radioMastAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, null, radioMastAi.m_transmitterPower)
                         );
                     case EarthquakeSensorAI earthquakeSensorAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, null, earthquakeSensorAi.m_detectionRange)
                         );
                     case PoliceStationAI policeStationAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, policeStationAi.m_policeDepartmentAccumulation, policeStationAi.m_policeDepartmentRadius)
                         );
                     case PostOfficeAI postOfficeAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, postOfficeAi.m_serviceAccumulation, postOfficeAi.m_serviceRadius)
                         );
                     case UniqueFacultyAI uniqueFacultyAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, uniqueFacultyAi.m_educationAccumulation, uniqueFacultyAi.m_educationRadius)
                         );
                     case CampusBuildingAI campusBuildingAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, campusBuildingAi.m_educationAccumulation, campusBuildingAi.m_educationRadius)
                         );
                     case SchoolAI schoolAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, schoolAi.m_educationAccumulation, schoolAi.m_educationRadius)
                         );
                     case CargoHarborAI cargoHarborAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, cargoHarborAi.m_cargoTransportAccumulation, cargoHarborAi.m_cargoTransportRadius)
                         );
                     case CargoStationAI cargoStationAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, cargoStationAi.m_cargoTransportAccumulation, cargoStationAi.m_cargoTransportRadius)
                         );
                     case ParkAI parkAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, parkAi.m_entertainmentAccumulation, parkAi.m_entertainmentRadius)
                         );
                     case MuseumAI museumAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, museumAi.m_entertainmentAccumulation, museumAi.m_entertainmentRadius)
                         );
                     case VarsitySportsArenaAI varsitySportsArenaAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, varsitySportsArenaAi.m_entertainmentAccumulation, varsitySportsArenaAi.m_entertainmentRadius)
                         );
                     case MonumentAI monumentAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, monumentAi.m_entertainmentAccumulation, monumentAi.m_entertainmentRadius)
                         );
                     case LibraryAI libraryAi:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, libraryAi.m_libraryAccumulation, libraryAi.m_libraryRadius)
                         );
                     case ChildcareAI childcareAI:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, childcareAI.m_healthCareAccumulation, childcareAI.m_healthCareAccumulation)
                         );
                     case EldercareAI eldercareAI:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, eldercareAI.m_healthCareAccumulation, eldercareAI.m_healthCareAccumulation)
                         );
                     case MarketAI martketAI:
-                        return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                        return Result<string, OptionItemDefaultValues?>.Ok(
                             new OptionItemDefaultValues(systemName, martketAI.m_healthCareAccumulation, martketAI.m_healthCareAccumulation)
                         );
                     default:
-                        return Result.Fail<Maybe<OptionItemDefaultValues>>(
-                            $"Can't handle ai of type '{ai.GetType().FullName}'."
+                        return Result<string, OptionItemDefaultValues?>.Error(
+                            _errorMessageBuilder.Build(nameof(GetDefaultValues), $"Can't handle ai of type '{ai.GetType().FullName}'.")
                         );
                 }
             }
@@ -454,17 +461,19 @@ namespace ServiceRadiusAdjuster.Service
                 var ti = PrefabCollection<TransportInfo>.FindLoaded(systemName);
                 var ai = (TransportLineAI)ti.m_netInfo.GetAI();
 
-                return Result.Ok<Maybe<OptionItemDefaultValues>>(
+                return Result<string, OptionItemDefaultValues?>.Ok(
                     new OptionItemDefaultValues(systemName, ai.m_publicTransportAccumulation, ai.m_publicTransportRadius)
                 );
             }
             else
             {
-                return Result.Fail<Maybe<OptionItemDefaultValues>>($"Can't handle service type '{serviceType.Name}'.");
+                return Result<string, OptionItemDefaultValues?>.Error(
+                    _errorMessageBuilder.Build(nameof(GetDefaultValues), $"Can't handle service type '{serviceType.Name}'.")
+                );
             }
         }
 
-        public Result ApplyToGame(Profile profile)
+        public Result<string, Profile> ApplyToGame(Profile profile)
         {
             if (profile == null) throw new ArgumentNullException(nameof(profile));
 
@@ -474,44 +483,39 @@ namespace ServiceRadiusAdjuster.Service
             {
                 foreach (var oi in vg.OptionItems)
                 {
-                    var commandResult = ApplyToGame(oi);
-                    if (commandResult.IsFailure)
-                    {
-                        errors.Add(commandResult.Error);
-                        continue;
-                    }
+                    ApplyToGame(oi).OnError(e => errors.Add(e));
                 }
             }
 
             if (errors.Any())
             {
-                return Result.Fail(string.Join(Environment.NewLine, errors.ToArray()));
+                return Result<string, Profile>.Error(string.Join(Environment.NewLine, errors.ToArray()));
             }
 
-            return Result.Ok();
+            return Result<string, Profile>.Ok(profile);
         }
 
-        public Result ApplyToGame(OptionItem optionItem)
+        public Result<string> ApplyToGame(OptionItem optionItem)
         {
-            if (optionItem == null) throw new ArgumentNullException(nameof(optionItem));
+            if (optionItem is null) 
+                throw new ArgumentNullException(nameof(optionItem));
+
             if (optionItem.Ignore)
-            {
-                return Result.Ok();
-            }
+                return Result<string>.Ok();
 
             if (optionItem.ServiceType == ServiceType.Building)
             {
                 ApplyToBuilding(optionItem);
-                return Result.Ok();
+                return Result<string>.Ok();
             }
             else if (optionItem.ServiceType == ServiceType.Transport)
             {
                 ApplyToTransport(optionItem);
-                return Result.Ok();
+                return Result<string>.Ok();
             }
             else
             {
-                return Result.Fail($"{_cantApplyValue} Service type {optionItem.ServiceType} is unknown.");
+                return Result<string>.Error($"{_cantApplyValue} Service type {optionItem.ServiceType} is unknown.");
             }
         }
 
