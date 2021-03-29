@@ -39,10 +39,10 @@ namespace ServiceRadiusAdjuster.Model
             return Equals(obj as ServiceType);
         }
 
-        public bool Equals(ServiceType other)
+        public bool Equals(ServiceType? other)
         {
-            return other != null &&
-                   Name == other.Name;
+            return other is not null
+                && Name == other.Name;
         }
 
         public override int GetHashCode()
