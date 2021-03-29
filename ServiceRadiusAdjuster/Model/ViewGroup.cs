@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace ServiceRadiusAdjuster.Model
 {
@@ -20,12 +19,11 @@ namespace ServiceRadiusAdjuster.Model
             _name = name ?? throw new ArgumentNullException(nameof(name));
             _order = order;
             _optionItems = optionItems ?? throw new ArgumentException(nameof(optionItems));
-            OptionItems = new ReadOnlyCollection<OptionItem>(optionItems);
         }
 
         public string Name => _name;
         public int Order => _order;
-        public ReadOnlyCollection<OptionItem> OptionItems { get; }
+        public IEnumerable<OptionItem> OptionItems => _optionItems;
 
         public void Add(OptionItem optionItem)
         {

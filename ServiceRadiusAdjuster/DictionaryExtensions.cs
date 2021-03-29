@@ -7,7 +7,8 @@ namespace ServiceRadiusAdjuster
     {
         public static Dictionary<string, float> CombineAndUpdate(this Dictionary<string, float> aPairs, Dictionary<string, float> bPairs)
         {
-            if (bPairs == null) throw new ArgumentNullException(nameof(bPairs));
+            if (bPairs is null)
+                throw new ArgumentNullException(nameof(bPairs));
 
             var result = new Dictionary<string, float>(aPairs);
             foreach (var key in bPairs.Keys)

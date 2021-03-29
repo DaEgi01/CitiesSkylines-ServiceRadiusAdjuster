@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 namespace ServiceRadiusAdjuster.Model
 {
@@ -51,46 +51,43 @@ namespace ServiceRadiusAdjuster.Model
         public static readonly Category MonumentCategory5 = new Category("MonumentCategory5", "UniqueBuildings - Level 5");
         public static readonly Category MonumentCategory6 = new Category("MonumentCategory6", "UniqueBuildings - Level 6");
 
-        public static ReadOnlyCollection<Category> GetAll()
+        public static IEnumerable<Category> GetAll()
         {
-            return Array.AsReadOnly(new []
-            {
-                RoadsMaintenance,
-                RoadsIntersection,
-                Electicity,
-                WaterServices,
-                HeatingServices,
-                Default,
-                HealthCare,
-                FireDeparment,
-                DisasterServices,
-                PoliceDepartment,
-                Education,
-                PublicTransportBus,
-                PublicTransportTram,
-                PublicTransportMetro,
-                PublicTransportTrain,
-                PublicTransportShip,
-                PublicTransportPlane,
-                PublicTransportMonorail,
-                PublicTransportCableCar,
-                PublicTransportTaxi,
-                PublicTransportPost,
-                BeautificationParks,
-                BeautificationPlazas,
-                BeautificationOthers,
-                BeautificationTourismAndLeisure,
-                BeautificationWinterParksAndPlazas,
-                MonumentLandmarks,
-                MonumentTourismAndLeisure,
-                MonumentFootball,
-                MonumentCategory1,
-                MonumentCategory2,
-                MonumentCategory3,
-                MonumentCategory4,
-                MonumentCategory5,
-                MonumentCategory6
-            });
+            yield return RoadsMaintenance;
+            yield return RoadsIntersection;
+            yield return Electicity;
+            yield return WaterServices;
+            yield return HeatingServices;
+            yield return Default;
+            yield return HealthCare;
+            yield return FireDeparment;
+            yield return DisasterServices;
+            yield return PoliceDepartment;
+            yield return Education;
+            yield return PublicTransportBus;
+            yield return PublicTransportTram;
+            yield return PublicTransportMetro;
+            yield return PublicTransportTrain;
+            yield return PublicTransportShip;
+            yield return PublicTransportPlane;
+            yield return PublicTransportMonorail;
+            yield return PublicTransportCableCar;
+            yield return PublicTransportTaxi;
+            yield return PublicTransportPost;
+            yield return BeautificationParks;
+            yield return BeautificationPlazas;
+            yield return BeautificationOthers;
+            yield return BeautificationTourismAndLeisure;
+            yield return BeautificationWinterParksAndPlazas;
+            yield return MonumentLandmarks;
+            yield return MonumentTourismAndLeisure;
+            yield return MonumentFootball;
+            yield return MonumentCategory1;
+            yield return MonumentCategory2;
+            yield return MonumentCategory3;
+            yield return MonumentCategory4;
+            yield return MonumentCategory5;
+            yield return MonumentCategory6;
         }
     }
 }

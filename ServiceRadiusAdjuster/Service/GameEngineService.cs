@@ -57,16 +57,12 @@ namespace ServiceRadiusAdjuster.Service
             for (uint i = 0; i < loadedBuildingInfoCount; i++)
             {
                 var bi = PrefabCollection<BuildingInfo>.GetLoaded(i);
-                if (bi == null)
-                {
+                if (bi is null)
                     continue;
-                }
 
                 var ai = bi.GetAI();
-                if (ai == null)
-                {
+                if (ai is null)
                     continue;
-                }
 
                 switch (ai)
                 {
@@ -182,10 +178,8 @@ namespace ServiceRadiusAdjuster.Service
             for (uint i = 0; i < loadedTransportInfoCount; i++)
             {
                 var ti = PrefabCollection<TransportInfo>.GetLoaded(i);
-                if (ti == null)
-                {
+                if (ti is null)
                     continue;
-                }
 
                 if (ti.category == Category.PublicTransportBus.Name
                     || ti.category == Category.PublicTransportCableCar.Name
@@ -198,10 +192,8 @@ namespace ServiceRadiusAdjuster.Service
                 )
                 {
                     var ai = ti.m_netInfo.GetAI() as TransportLineAI;
-                    if (ai == null)
-                    {
+                    if (ai is null)
                         continue;
-                    }
 
                     publicTransportOptionItems.Add(new OptionItem(ServiceType.Transport, ti.name, ti.GetUncheckedLocalizedTitle(), ai.m_publicTransportAccumulation, ai.m_publicTransportAccumulation, ai.m_publicTransportRadius, ai.m_publicTransportRadius));
                 }
@@ -307,7 +299,8 @@ namespace ServiceRadiusAdjuster.Service
 
         public Result<string, Profile> ApplyToGame(Profile profile)
         {
-            if (profile == null) throw new ArgumentNullException(nameof(profile));
+            if (profile is null)
+                throw new ArgumentNullException(nameof(profile));
 
             var errors = new List<string>();
 
@@ -353,16 +346,12 @@ namespace ServiceRadiusAdjuster.Service
 
         private void ApplyToBuilding(OptionItem optionItem)
         {
-            if (optionItem == null)
-            {
+            if (optionItem is null)
                 throw new ArgumentNullException(nameof(optionItem));
-            }
 
             var buildingInfo = PrefabCollection<BuildingInfo>.FindLoaded(optionItem.SystemName);
-            if (buildingInfo == null)
-            {
+            if (buildingInfo is null)
                 return;
-            }
 
             var ai = buildingInfo.GetAI();
             switch (ai)
@@ -498,10 +487,8 @@ namespace ServiceRadiusAdjuster.Service
         private void ApplyToTransport(OptionItem optionItem)
         {
             var transportInfo = PrefabCollection<TransportInfo>.FindLoaded(optionItem.SystemName);
-            if (transportInfo == null)
-            {
+            if (transportInfo is null)
                 return;
-            }
 
             var ai = (TransportLineAI)transportInfo.m_netInfo.GetAI();
             ai.m_publicTransportAccumulation = optionItem.Accumulation.Value;

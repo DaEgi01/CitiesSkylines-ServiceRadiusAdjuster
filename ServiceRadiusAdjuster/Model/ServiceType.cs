@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServiceRadiusAdjuster.FunctionalCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,22 +19,19 @@ namespace ServiceRadiusAdjuster.Model
 
         public static IEnumerable<ServiceType> GetAll()
         {
-            return new[]
-            {
-                Building,
-                Transport
-            };
+            yield return Building;
+            yield return Transport;
         }
 
-        public static ServiceType FromName(string name)
+        public static Result<string, ServiceType> FromName(string name)
         {
             var result = GetAll().SingleOrDefault(s => s.Name == name);
-            if (result == null)
+            if (result is null)
             {
-                throw new Exception($"Unknown ServiceType '{name}'.");
+                return Result<string, ServiceType>.Error($"Unknown ServiceType '{name}'.");
             }
 
-            return result;
+            return Result<string, ServiceType>.Ok(result);
         }
 
         public override bool Equals(object obj)

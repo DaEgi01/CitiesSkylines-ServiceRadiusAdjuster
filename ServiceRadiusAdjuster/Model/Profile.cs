@@ -1,14 +1,13 @@
 ﻿using ServiceRadiusAdjuster.FunctionalCore;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace ServiceRadiusAdjuster.Model
 {
     public class Profile
     {
-        private readonly List<ViewGroup> _viewGroups;
+        private readonly IEnumerable<ViewGroup> _viewGroups;
 
         public Profile()
             : this(new List<ViewGroup>())
@@ -18,10 +17,9 @@ namespace ServiceRadiusAdjuster.Model
         public Profile(List<ViewGroup> viewGroups)
         {
             _viewGroups = viewGroups ?? throw new ArgumentNullException(nameof(viewGroups));
-            ViewGroups = new ReadOnlyCollection<ViewGroup>(_viewGroups);
         }
 
-        public ReadOnlyCollection<ViewGroup> ViewGroups { get; }
+        public IEnumerable<ViewGroup> ViewGroups => _viewGroups;
 
         /// <summary>
         /// Adds new OptionItems into the appropriate group.
@@ -37,14 +35,14 @@ namespace ServiceRadiusAdjuster.Model
             foreach (var newOptionItem in newOptionItems)
             {
                 var optionItem = combinedOptionItems.SingleOrDefault(oi => oi.SystemName == newOptionItem.SystemName);
-                if (optionItem == null) //we have an item in the newViewGroups that is not part of the profile yet
+                if (optionItem is null) //we have an item in the newViewGroups that is not part of the profile yet
                 {
                     //find the the group where the item belongs to according to the newViewGroups
                     var newViewGroup = newViewGroups.Where(nvg => nvg.OptionItems.Any(oi => oi.SystemName == newOptionItem.SystemName)).SingleOrDefault();
 
                     //now find this group in the combinedViewGroups
                     var relevantViewGroup = combinedViewGroups.Where(cvg => cvg.Name == newViewGroup.Name).SingleOrDefault();
-                    if (relevantViewGroup == null)
+                    if (relevantViewGroup is null)
                     {
                         //add it if it does not exist yet
                         relevantViewGroup = new ViewGroup(newViewGroup.Name, newViewGroup.Order);
