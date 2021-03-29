@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using UnityEngine;
 
 namespace ServiceRadiusAdjuster.Configuration.v3
 {
@@ -49,18 +50,22 @@ namespace ServiceRadiusAdjuster.Configuration.v3
                         var optionItems = new List<OptionItem>();
                         foreach (var optionItemDto in viewGroupsDto.OptionItemDtos)
                         {
-                            optionItems.Add(
-                                new OptionItem(
-                                    ServiceType.FromName(optionItemDto.Type),
-                                    optionItemDto.SystemName,
-                                    optionItemDto.DisplayName,
-                                    optionItemDto.Accumulation,
-                                    optionItemDto.AccumulationDefault,
-                                    optionItemDto.Radius,
-                                    optionItemDto.RadiusDefault,
-                                    optionItemDto.Ignore.GetValueOrDefault(false)
-                                )
-                            );
+                            ServiceType.FromName(optionItemDto.Type)
+                                .OnErrorAndSuccess(
+                                    error => { Debug.Log(error); },
+                                    serviceType => optionItems.Add(
+                                        new OptionItem(
+                                            serviceType,
+                                            optionItemDto.SystemName,
+                                            optionItemDto.DisplayName,
+                                            optionItemDto.Accumulation,
+                                            optionItemDto.AccumulationDefault,
+                                            optionItemDto.Radius,
+                                            optionItemDto.RadiusDefault,
+                                            optionItemDto.Ignore.GetValueOrDefault(false)
+                                        )
+                                    )
+                                );
                         }
 
                         var viewGroup = new ViewGroup(viewGroupsDto.Name, viewGroupsDto.Order, optionItems);
