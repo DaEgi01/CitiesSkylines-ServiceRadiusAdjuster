@@ -11,10 +11,7 @@ namespace ServiceRadiusAdjuster.FunctionalCore
 
         private Result(TError? errorResult, TOk? okResult)
         {
-            if (errorResult is null || okResult is not null)
-                throw new ArgumentNullException(nameof(okResult));
-
-            if (errorResult is not null || okResult is null)
+            if (errorResult is not null && okResult is null)
                 throw new ArgumentNullException(nameof(errorResult));
 
             _errorResult = errorResult;
