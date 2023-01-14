@@ -66,6 +66,21 @@ namespace ServiceRadiusAdjuster.Service
 
                 switch (ai)
                 {
+                    case AirportAuxBuildingAI airportAuxBuildingAi: //take care, AirportAuxBuildingAI should come before AirportBuildingAI since it is also a AirportBuildingAI
+                        publicTransportOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), airportAuxBuildingAi.m_attractivenessAccumulation, airportAuxBuildingAi.m_attractivenessAccumulation, airportAuxBuildingAi.m_attractivenessRadius, airportAuxBuildingAi.m_attractivenessRadius));
+                        break;
+                    case AirportEntranceAI airportEntranceAi: //take care, AirportEntranceAI should come before AirportBuildingAI since it is also a AirportBuildingAI
+                        publicTransportOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), airportEntranceAi.m_attractivenessAccumulation, airportEntranceAi.m_attractivenessAccumulation, airportEntranceAi.m_attractivenessRadius, airportEntranceAi.m_attractivenessRadius));
+                        break;
+                    case AirportBuildingAI airportBuildingAi:
+                        publicTransportOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), airportBuildingAi.m_attractivenessAccumulation, airportBuildingAi.m_attractivenessAccumulation, airportBuildingAi.m_attractivenessRadius, airportBuildingAi.m_attractivenessRadius));
+                        break;
+                    case AirportCargoGateAI airportCargoGateAi:
+                        cargoTransportOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), airportCargoGateAi.m_cargoTransportAccumulation, airportCargoGateAi.m_cargoTransportAccumulation, airportCargoGateAi.m_cargoTransportRadius, airportCargoGateAi.m_cargoTransportRadius));
+                        break;
+                    case AirlineHeadquartersAI airlineHeadquartersAi: //take care, AirlineHeadquartersAI should come before MonumentAI since it is also a MonumentAI
+                        publicTransportOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), airlineHeadquartersAi.m_entertainmentAccumulation, airlineHeadquartersAi.m_entertainmentAccumulation, airlineHeadquartersAi.m_entertainmentRadius, airlineHeadquartersAi.m_entertainmentRadius));
+                        break;
                     case MedicalCenterAI medicalCenterAi: //take care, MedicalCenterAI should come before HospitalAI since it is also a HospitalAI
                         monumentOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), medicalCenterAi.m_healthCareAccumulation, medicalCenterAi.m_healthCareAccumulation, medicalCenterAi.m_healthCareRadius, medicalCenterAi.m_healthCareRadius));
                         break;
@@ -356,6 +371,26 @@ namespace ServiceRadiusAdjuster.Service
             var ai = buildingInfo.GetAI();
             switch (ai)
             {
+                case AirportAuxBuildingAI airportAuxBuildingAi:
+                    airportAuxBuildingAi.m_attractivenessAccumulation = optionItem.Accumulation.Value;
+                    airportAuxBuildingAi.m_attractivenessRadius = optionItem.Radius.Value;
+                    break;
+                case AirportEntranceAI airportEntranceAi:
+                    airportEntranceAi.m_attractivenessAccumulation = optionItem.Accumulation.Value;
+                    airportEntranceAi.m_attractivenessRadius = optionItem.Radius.Value;
+                    break;
+                case AirportBuildingAI airportBuildingAi:
+                    airportBuildingAi.m_attractivenessAccumulation = optionItem.Accumulation.Value;
+                    airportBuildingAi.m_attractivenessRadius = optionItem.Radius.Value;
+                    break;
+                case AirportCargoGateAI airportCargoGateAi:
+                    airportCargoGateAi.m_cargoTransportAccumulation = optionItem.Accumulation.Value;
+                    airportCargoGateAi.m_cargoTransportRadius = optionItem.Radius.Value;
+                    break;
+                case AirlineHeadquartersAI airlineHeadquartersAi:
+                    airlineHeadquartersAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
+                    airlineHeadquartersAi.m_entertainmentRadius = optionItem.Radius.Value;
+                    break;
                 case MedicalCenterAI medicalCenterAi:
                     medicalCenterAi.m_healthCareAccumulation = optionItem.Accumulation.Value;
                     medicalCenterAi.m_healthCareRadius = optionItem.Radius.Value;
