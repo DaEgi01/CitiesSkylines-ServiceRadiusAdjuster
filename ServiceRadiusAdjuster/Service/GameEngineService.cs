@@ -91,7 +91,7 @@ namespace ServiceRadiusAdjuster.Service
                         monumentOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), null, null, hadronColliderAi.m_educationRadius, hadronColliderAi.m_educationRadius));
                         break;
                     case IceCreamStandAI iceCreamStandAi:
-                        monumentOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), iceCreamStandAi.m_entertainmentAccumulation, iceCreamStandAi.m_entertainmentAccumulation, iceCreamStandAi.m_entertainmentRadius, iceCreamStandAi.m_entertainmentRadius));
+                        entertainmentParksOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), iceCreamStandAi.m_entertainmentAccumulation, iceCreamStandAi.m_entertainmentAccumulation, iceCreamStandAi.m_entertainmentRadius, iceCreamStandAi.m_entertainmentRadius));
                         break;
                     case EdenProjectAI edenProjectAi: //take care, EdenProjectAI should come before ParkAI since it is also a ParkAI
                         monumentOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), edenProjectAi.m_entertainmentAccumulation, edenProjectAi.m_entertainmentAccumulation, edenProjectAi.m_entertainmentRadius, edenProjectAi.m_entertainmentRadius));
