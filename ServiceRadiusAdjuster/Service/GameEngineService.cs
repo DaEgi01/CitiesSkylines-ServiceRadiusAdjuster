@@ -93,6 +93,9 @@ namespace ServiceRadiusAdjuster.Service
                     case IceCreamStandAI iceCreamStandAi:
                         entertainmentParksOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), iceCreamStandAi.m_entertainmentAccumulation, iceCreamStandAi.m_entertainmentAccumulation, iceCreamStandAi.m_entertainmentRadius, iceCreamStandAi.m_entertainmentRadius));
                         break;
+                    case ParkBuildingAI parkBuildingAi:
+                        entertainmentParksOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), parkBuildingAi.m_entertainmentAccumulation, parkBuildingAi.m_entertainmentAccumulation, parkBuildingAi.m_entertainmentRadius, parkBuildingAi.m_entertainmentRadius));
+                        break;
                     case EdenProjectAI edenProjectAi: //take care, EdenProjectAI should come before ParkAI since it is also a ParkAI
                         monumentOptionItems.Add(new OptionItem(ServiceType.Building, bi.name, bi.GetUncheckedLocalizedTitle(), edenProjectAi.m_entertainmentAccumulation, edenProjectAi.m_entertainmentAccumulation, edenProjectAi.m_entertainmentRadius, edenProjectAi.m_entertainmentRadius));
                         break;
@@ -444,6 +447,10 @@ namespace ServiceRadiusAdjuster.Service
                 case IceCreamStandAI iceCreamStandAi:
                     iceCreamStandAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
                     iceCreamStandAi.m_entertainmentRadius = optionItem.Radius.Value;
+                    break;
+                case ParkBuildingAI parkBuildingAi:
+                    parkBuildingAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
+                    parkBuildingAi.m_entertainmentRadius = optionItem.Radius.Value;
                     break;
                 case ParkAI parkAi:
                     parkAi.m_entertainmentAccumulation = optionItem.Accumulation.Value;
