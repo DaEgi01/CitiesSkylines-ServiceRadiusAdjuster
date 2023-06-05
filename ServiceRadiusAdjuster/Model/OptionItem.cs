@@ -1,7 +1,6 @@
 using ServiceRadiusAdjuster.FunctionalCore;
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using ServiceRadiusAdjuster.Configuration.v3;
 
 namespace ServiceRadiusAdjuster.Model
