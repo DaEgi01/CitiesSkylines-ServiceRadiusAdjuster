@@ -26,7 +26,7 @@ public class Mod : LoadingExtensionBase, IUserMod
     public string Name => "Service Radius Adjuster";
     public string SystemName => "ServiceRadiusAdjuster";
     public string Description => "Adjusts the effect radius of service buildings in your city.";
-    public string Version => "1.10.0";
+    public string Version => "1.10.1";
 
     [UsedImplicitly]
     public void OnEnabled()
