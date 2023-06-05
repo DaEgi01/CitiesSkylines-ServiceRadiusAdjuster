@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 
 namespace ServiceRadiusAdjuster.FunctionalCore
 {
+    [PublicAPI]
     [StructLayout(LayoutKind.Auto)]
     public readonly struct Result<TError>
     {
-        readonly TError? _errorResult;
+        private readonly TError? _errorResult;
 
         private Result(TError? errorResult)
         {

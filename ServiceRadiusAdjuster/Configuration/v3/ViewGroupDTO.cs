@@ -6,9 +6,9 @@ namespace ServiceRadiusAdjuster.Configuration.v3
     [XmlRoot("ViewGroup")]
     public class ViewGroupDto
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int Order { get; set; }
         [XmlElement("OptionItems")]
-        public List<OptionItemDto> OptionItemDtos { get; set; }
+        public List<OptionItemDto>? OptionItemDtos { get; set; }
     }
 }

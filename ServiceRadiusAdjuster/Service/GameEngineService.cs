@@ -14,12 +14,6 @@ namespace ServiceRadiusAdjuster.Service
         //TODO find out ui category of MuseumAI
         //TODO find out ui category of LibraryAI
         private readonly string _cantApplyValue = "Value can't be applied to the game.";
-        private readonly ErrorMessageBuilder _errorMessageBuilder;
-
-        public GameEngineService(ErrorMessageBuilder errorMessageBuilder)
-        {
-            _errorMessageBuilder = errorMessageBuilder ?? throw new ArgumentNullException(nameof(errorMessageBuilder));
-        }
 
         public Result<string, List<ViewGroup>> GetViewGroupsFromGame()
         {

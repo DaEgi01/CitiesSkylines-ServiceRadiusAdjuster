@@ -17,12 +17,12 @@ namespace ServiceRadiusAdjuster.Model
 
         public static readonly Category RoadsMaintenance = new Category("RoadsMaintenance", "Road condition");
         public static readonly Category RoadsIntersection = new Category("RoadsIntersection", "Intersections");
-        public static readonly Category Electicity = new Category("ElectricityDefault", "Electricity");
+        public static readonly Category Electricity = new Category("ElectricityDefault", "Electricity");
         public static readonly Category WaterServices = new Category("WaterServices", "Water and Sewage");
         public static readonly Category HeatingServices = new Category("WaterHeating", "Heating");
         public static readonly Category Default = new Category("Default", "Default");
         public static readonly Category HealthCare = new Category("HealthcareDefault", "Health Care");
-        public static readonly Category FireDeparment = new Category("FireDepartmentFire", "Fire Department");
+        public static readonly Category FireDepartment = new Category("FireDepartmentFire", "Fire Department");
         public static readonly Category DisasterServices = new Category("FireDepartmentDisaster", "Disaster Services");
         public static readonly Category PoliceDepartment = new Category("PoliceDefault", "Police Department");
         public static readonly Category Education = new Category("EducationDefault", "Education");
@@ -55,12 +55,12 @@ namespace ServiceRadiusAdjuster.Model
         {
             yield return RoadsMaintenance;
             yield return RoadsIntersection;
-            yield return Electicity;
+            yield return Electricity;
             yield return WaterServices;
             yield return HeatingServices;
             yield return Default;
             yield return HealthCare;
-            yield return FireDeparment;
+            yield return FireDepartment;
             yield return DisasterServices;
             yield return PoliceDepartment;
             yield return Education;

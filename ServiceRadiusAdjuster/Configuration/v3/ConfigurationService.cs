@@ -31,49 +31,36 @@ namespace ServiceRadiusAdjuster.Configuration.v3
                     return Result<string, Profile?>.Ok(null);
                 }
 
-                using (var streamReader = new StreamReader(_configFileInfo.FullName))
+                using var streamReader = new StreamReader(_configFileInfo.FullName);
+                var profileDto = _profileSerializer.Deserialize(streamReader) as ProfileDto;
+                if (profileDto is null)
                 {
-                    var profileDto = _profileSerializer.Deserialize(streamReader) as ProfileDto;
-                    if (profileDto is null)
-                    {
-                        return Result<string, Profile?>.Error(_errorMessageBuilder.Build(nameof(LoadProfile), "Profile could not be created, profileDto is null."));
-                    }
-
-                    if (profileDto.Version != Version)
-                    {
-                        return Result<string, Profile?>.Error(_errorMessageBuilder.Build(nameof(LoadProfile), "Profile could not be created since the versions do not match."));
-                    }
-
-                    var viewGroups = new List<ViewGroup>();
-                    foreach (var viewGroupsDto in profileDto.ViewGroupDtos)
-                    {
-                        var optionItems = new List<OptionItem>();
-                        foreach (var optionItemDto in viewGroupsDto.OptionItemDtos)
-                        {
-                            ServiceType.FromName(optionItemDto.Type)
-                                .OnErrorAndSuccess(
-                                    error => { Debug.Log(error); },
-                                    serviceType => optionItems.Add(
-                                        new OptionItem(
-                                            serviceType,
-                                            optionItemDto.SystemName,
-                                            optionItemDto.DisplayName,
-                                            optionItemDto.Accumulation,
-                                            optionItemDto.AccumulationDefault,
-                                            optionItemDto.Radius,
-                                            optionItemDto.RadiusDefault,
-                                            optionItemDto.Ignore.GetValueOrDefault(false)
-                                        )
-                                    )
-                                );
-                        }
-
-                        var viewGroup = new ViewGroup(viewGroupsDto.Name, viewGroupsDto.Order, optionItems);
-                        viewGroups.Add(viewGroup);
-                    }
-
-                    return Result<string, Profile?>.Ok(new Profile(viewGroups));
+                    return Result<string, Profile?>.Error(_errorMessageBuilder.Build(nameof(LoadProfile), "Profile could not be created, profileDto is null."));
                 }
+
+                if (profileDto.Version != Version)
+                {
+                    return Result<string, Profile?>.Error(_errorMessageBuilder.Build(nameof(LoadProfile), "Profile could not be created since the versions do not match."));
+                }
+
+                var viewGroups = new List<ViewGroup>();
+                foreach (var viewGroupsDto in profileDto.ViewGroupDtos)
+                {
+                    var optionItems = new List<OptionItem>();
+                    foreach (var optionItemDto in viewGroupsDto.OptionItemDtos)
+                    {
+                        ServiceType.FromName(optionItemDto.Type)
+                            .OnErrorAndSuccess(
+                                error => Debug.Log(error),
+                                serviceType => optionItems.Add(OptionItem.From(serviceType, optionItemDto))
+                            );
+                    }
+
+                    var viewGroup = new ViewGroup(viewGroupsDto.Name, viewGroupsDto.Order, optionItems);
+                    viewGroups.Add(viewGroup);
+                }
+
+                return Result<string, Profile?>.Ok(new Profile(viewGroups));
             }
             catch (Exception ex)
             {
@@ -127,11 +114,10 @@ namespace ServiceRadiusAdjuster.Configuration.v3
 
             try
             {
-                using (var streamWriter = new StreamWriter(_configFileInfo.FullName, false))
-                {
-                    _profileSerializer.Serialize(streamWriter, profileDto);
-                    return Result<string, Profile>.Ok(profile);
-                }
+                using var streamWriter = new StreamWriter(_configFileInfo.FullName, false);
+                _profileSerializer.Serialize(streamWriter, profileDto);
+
+                return Result<string, Profile>.Ok(profile);
             }
             catch (Exception ex)
             {

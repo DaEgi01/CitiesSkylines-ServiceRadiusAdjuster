@@ -11,16 +11,9 @@ namespace ServiceRadiusAdjuster
                 throw new ArgumentNullException(nameof(bPairs));
 
             var result = new Dictionary<string, float>(aPairs);
-            foreach (var key in bPairs.Keys)
+            foreach (string? key in bPairs.Keys)
             {
-                if (result.ContainsKey(key))
-                {
-                    result[key] = bPairs[key];
-                }
-                else
-                {
-                    result.Add(key, bPairs[key]);
-                }
+                result[key] = bPairs[key];
             }
 
             return result;

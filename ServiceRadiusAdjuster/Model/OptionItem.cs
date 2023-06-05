@@ -1,6 +1,8 @@
 using ServiceRadiusAdjuster.FunctionalCore;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using ServiceRadiusAdjuster.Configuration.v3;
 
 namespace ServiceRadiusAdjuster.Model
 {
@@ -28,6 +30,19 @@ namespace ServiceRadiusAdjuster.Model
             Radius = radius;
             RadiusDefault = radiusDefault;
             Ignore = ignore;
+        }
+
+        public static OptionItem From(ServiceType serviceType, OptionItemDto dto)
+        {
+            return new OptionItem(
+                serviceType,
+                dto.SystemName,
+                dto.DisplayName,
+                dto.Accumulation,
+                dto.AccumulationDefault,
+                dto.Radius,
+                dto.RadiusDefault,
+                dto.Ignore.GetValueOrDefault(false));
         }
 
         //TODO primitive obsession
