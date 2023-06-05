@@ -4,6 +4,8 @@
     <Company />
     <Product>Service Radius Adjuster Tests</Product>
     <Copyright>MIT</Copyright>
+    <LangVersion>default</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyTitle>ServiceRadiusAdjusterTests</AssemblyTitle>
@@ -13,9 +15,10 @@
     <ProjectReference Include="..\ServiceRadiusAdjuster\ServiceRadiusAdjuster.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.7.142" />
-    <PackageReference Include="xunit" Version="2.3.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0">
+    <PackageReference Include="FluentAssertions" Version="6.11.0" />
+    <PackageReference Include="Moq" Version="4.18.4" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
