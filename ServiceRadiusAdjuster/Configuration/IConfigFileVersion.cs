@@ -1,7 +1,6 @@
-﻿namespace ServiceRadiusAdjuster.Configuration
+﻿namespace ServiceRadiusAdjuster.Configuration;
+
+public interface IConfigFileVersion
 {
-    public interface IConfigFileVersion
-    {
-        string Version { get; }
-    }
+    string Version { get; }
 }
